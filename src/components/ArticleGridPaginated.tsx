@@ -86,11 +86,6 @@ export const ArticleGridPaginated = ({
           </Button>
         </div>
       )}
-
-      {/* Article count indicator */}
-      <p className="text-center text-sm text-muted-foreground">
-        Mostrando {visibleArticles.length} de {articles.length} artículos
-      </p>
     </div>
   );
 };
