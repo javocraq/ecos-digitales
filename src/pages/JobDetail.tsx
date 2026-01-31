@@ -181,43 +181,40 @@ const JobDetail = () => {
               {job.title}
             </h1>
 
-            {/* Meta row */}
-            <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
-              {/* Company with logo */}
-              <div className="flex items-center gap-2">
-                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                  {job.company_logo ? (
-                    <img
-                      src={job.company_logo}
-                      alt={job.company}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <Building2 className="h-3 w-3 text-muted-foreground" />
-                  )}
+            {/* Meta row with share button on desktop */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
+                {/* Company with logo */}
+                <div className="flex items-center gap-2">
+                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                    {job.company_logo ? (
+                      <img
+                        src={job.company_logo}
+                        alt={job.company}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Building2 className="h-3 w-3 text-muted-foreground" />
+                    )}
+                  </div>
+                  <span className="text-sm font-medium">{job.company}</span>
                 </div>
-                <span className="text-sm font-medium">{job.company}</span>
+                <span className="text-muted-foreground/40">•</span>
+                <span className="text-sm">{job.remote_type}</span>
+                <span className="text-muted-foreground/40">•</span>
+                <span className="text-sm">{job.job_type}</span>
               </div>
-              <span className="text-muted-foreground/40">•</span>
-              <span className="text-sm">{job.remote_type}</span>
-              <span className="text-muted-foreground/40">•</span>
-              <span className="text-sm">{job.job_type}</span>
-            </div>
 
-            {/* Date row */}
-            <div className="text-sm text-muted-foreground mb-6">
-              {formatRelativeDate(job.published_date)}
+              {/* Share button - Desktop only (mobile in header) */}
+              <button
+                onClick={handleShare}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                aria-label="Compartir trabajo"
+              >
+                <Share2 className="h-4 w-4" />
+                <span>Compartir</span>
+              </button>
             </div>
-
-            {/* Share button - Desktop only (mobile in header) */}
-            <button
-              onClick={handleShare}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground mb-8"
-              aria-label="Compartir trabajo"
-            >
-              <Share2 className="h-4 w-4" />
-              <span>Compartir</span>
-            </button>
 
             {/* Apply Button - Primary CTA */}
             <Button
