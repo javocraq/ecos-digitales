@@ -52,10 +52,11 @@ export const SimilarJobs = ({ currentJob }: SimilarJobsProps) => {
                 {job.title}
               </h4>
               <div className="mt-2 flex items-center gap-1 text-xs text-[#6b7280]">
-                <MapPin className="h-3 w-3" />
+                <MapPin className="h-3 w-3 flex-shrink-0" />
                 <span>{job.remote_type}</span>
-                <span className="mx-1">·</span>
-                <span>{formatRelativeDate(job.published_date)}</span>
+              </div>
+              <div className="mt-1 text-xs text-[#6b7280]">
+                {formatRelativeDate(job.published_date)}
               </div>
             </div>
           </div>
