@@ -1,7 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, differenceInHours } from "date-fns";
 import { es } from "date-fns/locale";
+
+const formatArticleDate = (dateString: string): string => {
+  const publishedDate = new Date(dateString);
+  const now = new Date();
+  const hoursDiff = differenceInHours(now, publishedDate);
+  
+  if (hoursDiff < 24) {
+    return formatDistanceToNow(publishedDate, { addSuffix: true, locale: es });
+  }
+  
+  return format(publishedDate, "d MMM", { locale: es }).toUpperCase();
+};
 import { useArticles } from "@/hooks/useArticles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "../OptimizedImage";
@@ -47,7 +59,7 @@ export const LatestNewsWidget = () => {
       <h3 className="mb-3 text-sm font-semibold text-foreground">Últimas Noticias</h3>
       <div className="space-y-3">
         {latestArticles.map((article) => {
-          const formattedDate = format(new Date(article.published_date), "d MMM", { locale: es }).toUpperCase();
+          const formattedDate = formatArticleDate(article.published_date);
           
           return (
             <Link
