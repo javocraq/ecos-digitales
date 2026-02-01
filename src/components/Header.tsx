@@ -112,39 +112,56 @@ export const Header = ({ showShare = false, shareTitle }: HeaderProps) => {
             ))}
           </nav>
 
-          {/* Search - Expandable */}
+          {/* Search - Expandable with animation */}
           <div ref={searchContainerRef} className="relative flex items-center">
-            {isSearchOpen ? (
-              <form onSubmit={handleSearch} className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Buscar..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-10 w-48 sm:w-64 rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCloseSearch}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-colors hover:bg-secondary"
-                  aria-label="Cerrar búsqueda"
-                >
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </form>
-            ) : (
+            {/* Search icon button - always rendered but hidden when search is open */}
+            <button
+              onClick={handleSearchIconClick}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-all duration-300 hover:bg-secondary",
+                isSearchOpen ? "scale-0 opacity-0 absolute" : "scale-100 opacity-100"
+              )}
+              aria-label="Buscar"
+            >
+              <Search className="h-4 w-4 text-muted-foreground" />
+            </button>
+
+            {/* Search form - animated expansion */}
+            <form 
+              onSubmit={handleSearch} 
+              className={cn(
+                "flex items-center gap-2 transition-all duration-300 ease-out origin-right",
+                isSearchOpen 
+                  ? "opacity-100 scale-100 translate-x-0" 
+                  : "opacity-0 scale-95 translate-x-4 pointer-events-none absolute"
+              )}
+            >
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Buscar..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={cn(
+                    "h-10 rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300",
+                    isSearchOpen ? "w-48 sm:w-64" : "w-0"
+                  )}
+                />
+              </div>
               <button
-                onClick={handleSearchIconClick}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-colors hover:bg-secondary"
-                aria-label="Buscar"
+                type="button"
+                onClick={handleCloseSearch}
+                className={cn(
+                  "flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background transition-all duration-200 hover:bg-secondary hover:border-destructive/50",
+                  isSearchOpen ? "scale-100 rotate-0" : "scale-0 rotate-90"
+                )}
+                aria-label="Cerrar búsqueda"
               >
-                <Search className="h-4 w-4 text-muted-foreground" />
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
-            )}
+            </form>
           </div>
 
           {/* Share button - Mobile only */}
