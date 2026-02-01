@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface FeaturedVideoProps {
@@ -7,14 +8,44 @@ interface FeaturedVideoProps {
   isLoading?: boolean;
 }
 
+// YouTube thumbnail component with fallback handling
+const YouTubeThumbnail = ({ 
+  videoId, 
+  title, 
+  className 
+}: { 
+  videoId: string; 
+  title: string; 
+  className?: string;
+}) => {
+  const [imgSrc, setImgSrc] = useState(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
+  const [hasError, setHasError] = useState(false);
+
+  const handleError = () => {
+    if (!hasError) {
+      setHasError(true);
+      // Try standard quality as final fallback
+      setImgSrc(`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`);
+    }
+  };
+
+  return (
+    <img
+      src={imgSrc}
+      alt={title}
+      className={className}
+      loading="lazy"
+      onError={handleError}
+    />
+  );
+};
+
 export const FeaturedVideo = ({
   videoId,
   title,
   description,
   isLoading = false,
 }: FeaturedVideoProps) => {
-  const maxResThumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-  const hqThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
   if (isLoading) {
@@ -59,17 +90,10 @@ export const FeaturedVideo = ({
         {/* Mobile layout: Thumbnail on top */}
         <div className="md:hidden">
           <div className="relative aspect-video overflow-hidden bg-muted">
-            <img
-              src={maxResThumbnail}
-              alt={title}
+            <YouTubeThumbnail
+              videoId={videoId}
+              title={title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (target.src !== hqThumbnail) {
-                  target.src = hqThumbnail;
-                }
-              }}
             />
           </div>
           <div className="p-5">
@@ -101,17 +125,10 @@ export const FeaturedVideo = ({
           {/* Right: Video thumbnail */}
           <div className="w-80 lg:w-96 flex-shrink-0 p-4">
             <div className="relative aspect-video overflow-hidden rounded-xl bg-muted">
-              <img
-                src={maxResThumbnail}
-                alt={title}
+              <YouTubeThumbnail
+                videoId={videoId}
+                title={title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (target.src !== hqThumbnail) {
-                    target.src = hqThumbnail;
-                  }
-                }}
               />
             </div>
           </div>
