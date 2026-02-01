@@ -1,6 +1,4 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Play } from "lucide-react";
-import { OptimizedImage } from "./OptimizedImage";
 
 interface FeaturedVideoProps {
   videoId: string;
@@ -60,19 +58,19 @@ export const FeaturedVideo = ({
       >
         {/* Mobile layout: Thumbnail on top */}
         <div className="md:hidden">
-          <div className="relative aspect-video overflow-hidden">
-            <OptimizedImage
+          <div className="relative aspect-video overflow-hidden bg-muted">
+            <img
               src={maxResThumbnail}
-              fallbackSrc={hqThumbnail}
               alt={title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== hqThumbnail) {
+                  target.src = hqThumbnail;
+                }
+              }}
             />
-            {/* Play button overlay */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors duration-300 group-hover:bg-black/40">
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-110">
-                <Play className="w-6 h-6 ml-1" fill="currentColor" />
-              </div>
-            </div>
           </div>
           <div className="p-5">
             <h3 className="text-lg font-semibold text-foreground line-clamp-2 mb-2">
@@ -102,19 +100,19 @@ export const FeaturedVideo = ({
           
           {/* Right: Video thumbnail */}
           <div className="w-80 lg:w-96 flex-shrink-0 p-4">
-            <div className="relative aspect-video overflow-hidden rounded-xl">
-              <OptimizedImage
+            <div className="relative aspect-video overflow-hidden rounded-xl bg-muted">
+              <img
                 src={maxResThumbnail}
-                fallbackSrc={hqThumbnail}
                 alt={title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== hqThumbnail) {
+                    target.src = hqThumbnail;
+                  }
+                }}
               />
-              {/* Play button overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors duration-300 group-hover:bg-black/30">
-                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white/90 text-primary shadow-lg transition-transform duration-300 group-hover:scale-110">
-                  <Play className="w-6 h-6 ml-1" fill="currentColor" />
-                </div>
-              </div>
             </div>
           </div>
         </div>
