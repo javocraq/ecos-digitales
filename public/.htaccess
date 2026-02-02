@@ -2,10 +2,13 @@
   RewriteEngine On
   RewriteBase /
 
-  # No reescribir archivos y directorios existentes
+  # Detectar crawlers de redes sociales y redirigir a prerender
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|pinterest|redditbot) [NC]
+  RewriteCond %{REQUEST_URI} !^/prerender
+  RewriteRule ^(.*)$ https://service.prerender.io/https://www.nucleo.la/$1 [P,L]
+
+  # Reglas normales de SPA (para usuarios normales)
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-
-  # Redirigir todo lo demás a index.html
   RewriteRule ^ index.html [L]
 </IfModule>
