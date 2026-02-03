@@ -227,9 +227,8 @@ const Search = () => {
               {/* Matching Jobs */}
               {matchingJobs.length > 0 && (
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
-                    Trabajos ({matchingJobs.length})
+                  <h2 className="text-lg font-semibold text-foreground mb-4">
+                    Trabajos
                   </h2>
                   <div className="flex flex-col gap-3">
                     {matchingJobs.map((result) => (
