@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -15,24 +15,44 @@ const ITEMS_PER_PAGE = 3;
 export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [displayedPage, setDisplayedPage] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Limit to 9 articles max
   const limitedArticles = articles.slice(0, 9);
   const totalPages = Math.ceil(limitedArticles.length / ITEMS_PER_PAGE);
   
-  const startIndex = currentPage * ITEMS_PER_PAGE;
+  const startIndex = displayedPage * ITEMS_PER_PAGE;
   const visibleArticles = limitedArticles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Handle page transition with animation
+  useEffect(() => {
+    if (currentPage !== displayedPage && !isAnimating) {
+      setIsAnimating(true);
+      
+      // Short delay then update displayed page
+      const timer = setTimeout(() => {
+        setDisplayedPage(currentPage);
+        setIsAnimating(false);
+      }, 50);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentPage, displayedPage, isAnimating]);
 
   if (limitedArticles.length === 0) {
     return null;
   }
 
   const handlePrev = () => {
+    if (isAnimating) return;
     setSlideDirection('left');
     setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
   };
 
   const handleNext = () => {
+    if (isAnimating) return;
     setSlideDirection('right');
     setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
   };
@@ -53,8 +73,9 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
             variant="outline"
             size="icon"
             onClick={handlePrev}
-            className="h-10 w-10 rounded-full"
+            className="h-10 w-10 rounded-full transition-opacity"
             aria-label="Artículos anteriores"
+            disabled={isAnimating}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -71,8 +92,9 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
             variant="outline"
             size="icon"
             onClick={handleNext}
-            className="h-10 w-10 rounded-full"
+            className="h-10 w-10 rounded-full transition-opacity"
             aria-label="Más artículos"
+            disabled={isAnimating}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -88,16 +110,18 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
         ))}
       </div>
       
-      {/* Desktop: Paginated cards with images */}
-      <div 
-        key={`desktop-${currentPage}`} 
-        className={`hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${
-          slideDirection === 'right' ? 'animate-slide-in-right' : 'animate-slide-in-left'
-        }`}
-      >
-        {visibleArticles.map((article) => (
-          <DesktopRelatedCard key={article.id} article={article} />
-        ))}
+      {/* Desktop: Paginated cards with smooth slide animation */}
+      <div ref={containerRef} className="carousel-container hidden sm:block">
+        <div 
+          key={`desktop-${displayedPage}-${slideDirection}`} 
+          className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${
+            slideDirection === 'right' ? 'animate-slide-in-right' : 'animate-slide-in-left'
+          }`}
+        >
+          {visibleArticles.map((article) => (
+            <DesktopRelatedCard key={article.id} article={article} />
+          ))}
+        </div>
       </div>
 
       {/* Page indicator - desktop only */}
