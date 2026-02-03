@@ -133,7 +133,7 @@ const ArticleCardSmall = ({ article }: { article: Article }) => {
           
           {/* Date only */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="uppercase tracking-wide font-medium text-primary/80">
+            <span className="tracking-wide font-medium text-primary/80">
               {formattedDate}
             </span>
           </div>
