@@ -9,20 +9,20 @@ export const JobListItem = ({ job }: JobListItemProps) => {
   return (
     <Link
       to={`/trabajos/${job.slug}`}
-      className="block px-2 py-4 border-b border-border hover:bg-muted/50 cursor-pointer transition-colors"
+      className="block px-3 py-4 border-b border-border hover:bg-muted/50 cursor-pointer transition-colors"
     >
       {/* Header: Empresa y Fecha */}
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-muted-foreground font-medium">
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <span className="text-xs text-muted-foreground font-medium truncate max-w-[60%]">
           {job.company}
         </span>
-        <span className="text-xs text-muted-foreground/70">
+        <span className="text-xs text-muted-foreground/70 whitespace-nowrap flex-shrink-0">
           {formatRelativeDate(job.published_date)}
         </span>
       </div>
 
       {/* Título */}
-      <h3 className="text-[15px] lg:text-base font-semibold text-foreground mb-1.5">
+      <h3 className="text-sm sm:text-[15px] lg:text-base font-semibold text-foreground mb-1.5 leading-snug">
         {job.title}
       </h3>
 
