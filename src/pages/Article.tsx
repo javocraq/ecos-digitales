@@ -16,11 +16,11 @@ const Article = () => {
   const { data: article, isLoading: isArticleLoading } = useArticleBySlug(slug || "");
   const { data: allArticles } = useArticles();
   
-  // Get related articles from the same category
+  // Get related articles from the same category (up to 9 most recent)
   const relatedArticles = article && allArticles
     ? allArticles
         .filter(a => a.category === article.category && a.slug !== article.slug)
-        .slice(0, 3)
+        .slice(0, 9)
     : [];
 
   if (isArticleLoading) {

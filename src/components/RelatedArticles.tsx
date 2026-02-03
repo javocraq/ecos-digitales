@@ -1,37 +1,102 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Article } from "@/data/mockArticles";
 
 interface RelatedArticlesProps {
   articles: Article[];
 }
 
+const ITEMS_PER_PAGE = 3;
+
 export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
-  if (articles.length === 0) {
+  const [currentPage, setCurrentPage] = useState(0);
+  
+  // Limit to 9 articles max
+  const limitedArticles = articles.slice(0, 9);
+  const totalPages = Math.ceil(limitedArticles.length / ITEMS_PER_PAGE);
+  
+  const startIndex = currentPage * ITEMS_PER_PAGE;
+  const visibleArticles = limitedArticles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  if (limitedArticles.length === 0) {
     return null;
   }
 
+  const handlePrev = () => {
+    setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
+  };
+
+  const showNavigation = totalPages > 1;
+
   return (
     <section className="border-t border-border pt-12 mt-12">
-      <h2 className="mb-8 text-2xl font-semibold text-foreground text-center">
-        Artículos relacionados
-      </h2>
+      <div className="flex items-center justify-between mb-8">
+        {showNavigation && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePrev}
+            className="h-10 w-10 rounded-full"
+            aria-label="Artículos anteriores"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        )}
+        
+        <h2 className="flex-1 text-2xl font-semibold text-foreground text-center">
+          Artículos relacionados
+        </h2>
+        
+        {showNavigation && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNext}
+            className="h-10 w-10 rounded-full"
+            aria-label="Más artículos"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
       
       {/* Mobile: Horizontal cards like "Últimas noticias" */}
       <div className="grid gap-4 sm:hidden">
-        {articles.map((article) => (
+        {visibleArticles.map((article) => (
           <MobileRelatedCard key={article.id} article={article} />
         ))}
       </div>
       
       {/* Desktop: Large cards with images */}
       <div className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {articles.map((article) => (
+        {visibleArticles.map((article) => (
           <DesktopRelatedCard key={article.id} article={article} />
         ))}
       </div>
+
+      {/* Page indicator */}
+      {showNavigation && (
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: totalPages }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index)}
+              className={`h-2 w-2 rounded-full transition-colors ${
+                index === currentPage ? "bg-primary" : "bg-muted-foreground/30"
+              }`}
+              aria-label={`Ir a página ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };
