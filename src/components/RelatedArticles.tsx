@@ -159,8 +159,11 @@ const DesktopRelatedCard = ({ article }: { article: Article }) => {
           <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
             {title}
           </h3>
-          <div className="mt-auto flex items-center justify-between pt-5 text-sm text-muted-foreground">
-            <span>Por {author} · {formattedDate}</span>
+          <div className="mt-auto flex items-end justify-between pt-5 text-sm text-muted-foreground">
+            <div className="flex flex-col">
+              <span>Por {author}</span>
+              <span>{formattedDate}</span>
+            </div>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </div>
         </div>
