@@ -269,5 +269,5 @@ export const formatRelativeDate = (dateString: string): string => {
       .replace("alrededor de ", "");
   }
   
-  return format(publishedDate, "d MMM", { locale: es }).toUpperCase();
+  return format(publishedDate, "d MMM", { locale: es });
 };
