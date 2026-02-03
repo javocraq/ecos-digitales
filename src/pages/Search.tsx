@@ -243,7 +243,7 @@ const Search = () => {
               {matchingArticles.length > 0 && (
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-4">
-                    Artículos
+                    Noticias
                   </h2>
                   <div className="flex flex-col gap-3">
                     {matchingArticles.map((result) => (
