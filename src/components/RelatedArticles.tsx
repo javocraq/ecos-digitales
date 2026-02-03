@@ -14,6 +14,7 @@ const ITEMS_PER_PAGE = 3;
 
 export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
   
   // Limit to 9 articles max
   const limitedArticles = articles.slice(0, 9);
@@ -27,10 +28,12 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
   }
 
   const handlePrev = () => {
+    setSlideDirection('left');
     setCurrentPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
   };
 
   const handleNext = () => {
+    setSlideDirection('right');
     setCurrentPage((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
   };
 
@@ -86,7 +89,12 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
       </div>
       
       {/* Desktop: Paginated cards with images */}
-      <div key={`desktop-${currentPage}`} className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
+      <div 
+        key={`desktop-${currentPage}`} 
+        className={`hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${
+          slideDirection === 'right' ? 'animate-slide-in-right' : 'animate-slide-in-left'
+        }`}
+      >
         {visibleArticles.map((article) => (
           <DesktopRelatedCard key={article.id} article={article} />
         ))}
