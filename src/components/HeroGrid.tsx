@@ -14,7 +14,7 @@ const formatArticleDate = (dateString: string) => {
     // Within 24 hours: show relative time
     const relative = formatDistanceToNow(date, { locale: es, addSuffix: true });
     // Remove "alrededor de" prefix for cleaner display
-    return relative.replace(/^alrededor de\s/, "");
+    return relative.replace(/^alrededor de\s/i, "");
   }
   
   // After 24 hours: show fixed date
