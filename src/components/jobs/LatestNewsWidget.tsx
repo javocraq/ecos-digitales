@@ -9,7 +9,8 @@ const formatArticleDate = (dateString: string): string => {
   const hoursDiff = differenceInHours(now, publishedDate);
   
   if (hoursDiff < 24) {
-    return formatDistanceToNow(publishedDate, { addSuffix: true, locale: es });
+    return formatDistanceToNow(publishedDate, { addSuffix: true, locale: es })
+      .replace("alrededor de ", "");
   }
   
   return format(publishedDate, "d MMM", { locale: es }).toUpperCase();
