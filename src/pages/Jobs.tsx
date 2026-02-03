@@ -2,15 +2,18 @@ import { useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JobListItem } from "@/components/jobs/JobListItem";
+import { SwipeableJobCard } from "@/components/jobs/SwipeableJobCard";
 import { JobSearch } from "@/components/jobs/JobSearch";
 import { LatestNewsWidget } from "@/components/jobs/LatestNewsWidget";
 import { JobsLoadingSkeleton } from "@/components/LoadingGrid";
 import { ErrorState } from "@/components/ErrorState";
 import { SEO } from "@/components/SEO";
 import { useJobs } from "@/hooks/useJobs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Jobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const isMobile = useIsMobile();
 
   const {
     data: jobs,
@@ -57,8 +60,13 @@ const Jobs = () => {
               <div className="flex-1 order-1">
                 <h2 className="mb-4 text-sm font-semibold text-foreground lg:hidden">Trabajos</h2>
                 
-                {/* Lista de Trabajos con scroll */}
-                <div className="lg:h-[calc(100vh-180px)] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
+                {/* Mobile: Swipeable Card */}
+                {isMobile && filteredAndSortedJobs.length > 0 && (
+                  <SwipeableJobCard jobs={filteredAndSortedJobs} />
+                )}
+
+                {/* Desktop: Lista de Trabajos con scroll */}
+                <div className="hidden lg:block lg:h-[calc(100vh-180px)] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
                   {filteredAndSortedJobs.length > 0 ? (
                     <div>
                       {filteredAndSortedJobs.map(job => (
@@ -83,6 +91,23 @@ const Jobs = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Mobile: Empty state */}
+                {isMobile && filteredAndSortedJobs.length === 0 && (
+                  <div className="rounded-lg border border-border bg-card p-8 text-center">
+                    <p className="text-muted-foreground">
+                      No hay trabajos que coincidan con tu búsqueda
+                    </p>
+                    {searchQuery && (
+                      <button 
+                        onClick={() => setSearchQuery("")} 
+                        className="mt-3 text-sm text-primary hover:underline"
+                      >
+                        Limpiar búsqueda
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Sidebar - Noticias (después de trabajos en mobile) */}
