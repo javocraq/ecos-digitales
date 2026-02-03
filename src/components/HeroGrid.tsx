@@ -1,9 +1,25 @@
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, differenceInHours } from "date-fns";
 import { es } from "date-fns/locale";
 import { OptimizedImage } from "./OptimizedImage";
 import { Skeleton } from "./ui/skeleton";
 import type { Article } from "@/hooks/useArticles";
+
+// Helper to format date with relative time for recent articles
+const formatArticleDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const hoursAgo = differenceInHours(new Date(), date);
+  
+  if (hoursAgo < 24) {
+    // Within 24 hours: show relative time
+    const relative = formatDistanceToNow(date, { locale: es, addSuffix: true });
+    // Remove "alrededor de" prefix for cleaner display
+    return relative.replace(/^alrededor de\s/, "");
+  }
+  
+  // After 24 hours: show fixed date
+  return format(date, "d MMM", { locale: es });
+};
 
 interface HeroGridProps {
   articles: Article[];
@@ -77,7 +93,7 @@ const ArticleCardLarge = ({ article }: { article: Article }) => {
 
 // Small secondary article card
 const ArticleCardSmall = ({ article }: { article: Article }) => {
-  const formattedDate = format(new Date(article.published_date), "d MMM", { locale: es });
+  const formattedDate = formatArticleDate(article.published_date);
 
   return (
     <Link
