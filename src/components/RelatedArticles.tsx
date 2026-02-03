@@ -38,7 +38,13 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
 
   return (
     <section className="border-t border-border pt-12 mt-12">
-      <div className="flex items-center justify-between mb-8">
+      {/* Mobile: Title without arrows */}
+      <h2 className="sm:hidden text-2xl font-semibold text-foreground text-center mb-8">
+        Artículos relacionados
+      </h2>
+      
+      {/* Desktop: Title with arrows */}
+      <div className="hidden sm:flex items-center justify-between mb-8">
         {showNavigation && (
           <Button
             variant="outline"
@@ -68,23 +74,23 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
         )}
       </div>
       
-      {/* Mobile: Horizontal cards like "Últimas noticias" */}
-      <div key={`mobile-${currentPage}`} className="grid gap-4 sm:hidden animate-fade-in">
-        {visibleArticles.map((article) => (
+      {/* Mobile: All articles in vertical list (no pagination) */}
+      <div className="grid gap-4 sm:hidden">
+        {limitedArticles.map((article) => (
           <MobileRelatedCard key={article.id} article={article} />
         ))}
       </div>
       
-      {/* Desktop: Large cards with images */}
+      {/* Desktop: Paginated cards with images */}
       <div key={`desktop-${currentPage}`} className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
         {visibleArticles.map((article) => (
           <DesktopRelatedCard key={article.id} article={article} />
         ))}
       </div>
 
-      {/* Page indicator */}
+      {/* Page indicator - desktop only */}
       {showNavigation && (
-        <div className="flex justify-center gap-2 mt-6">
+        <div className="hidden sm:flex justify-center gap-2 mt-6">
           {Array.from({ length: totalPages }).map((_, index) => (
             <button
               key={index}
