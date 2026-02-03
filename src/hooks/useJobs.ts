@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { format, formatDistanceToNow, differenceInHours } from "date-fns";
+import { es } from "date-fns/locale";
 
 export interface Job {
   id: string;
@@ -258,18 +260,14 @@ export const formatSalary = (min?: number | null, max?: number | null, currency:
 };
 
 export const formatRelativeDate = (dateString: string): string => {
-  const date = new Date(dateString);
+  const publishedDate = new Date(dateString);
   const now = new Date();
-  const diffInMs = now.getTime() - date.getTime();
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const hoursDiff = differenceInHours(now, publishedDate);
   
-  if (diffInHours < 1) return "Hace menos de 1h";
-  if (diffInHours < 24) return `Hace ${diffInHours}h`;
-  if (diffInDays === 1) return "Hace 1 día";
-  if (diffInDays < 7) return `Hace ${diffInDays} días`;
-  if (diffInDays < 30) return `Hace ${Math.floor(diffInDays / 7)} semanas`;
-  if (diffInDays < 365) return `Hace ${Math.floor(diffInDays / 30)} meses`;
+  if (hoursDiff < 24) {
+    return formatDistanceToNow(publishedDate, { addSuffix: true, locale: es })
+      .replace("alrededor de ", "");
+  }
   
-  return `Hace ${Math.floor(diffInDays / 365)} años`;
+  return format(publishedDate, "d MMM", { locale: es }).toUpperCase();
 };
