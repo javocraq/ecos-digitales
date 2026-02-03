@@ -69,14 +69,14 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
       </div>
       
       {/* Mobile: Horizontal cards like "Últimas noticias" */}
-      <div className="grid gap-4 sm:hidden">
+      <div key={`mobile-${currentPage}`} className="grid gap-4 sm:hidden animate-fade-in">
         {visibleArticles.map((article) => (
           <MobileRelatedCard key={article.id} article={article} />
         ))}
       </div>
       
       {/* Desktop: Large cards with images */}
-      <div className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div key={`desktop-${currentPage}`} className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
         {visibleArticles.map((article) => (
           <DesktopRelatedCard key={article.id} article={article} />
         ))}
