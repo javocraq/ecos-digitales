@@ -45,32 +45,38 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
       
       {/* Desktop: Title with arrows */}
       <div className="hidden sm:flex items-center justify-between mb-8">
-        {showNavigation && (
+        {showNavigation ? (
           <Button
             variant="outline"
             size="icon"
             onClick={handlePrev}
-            className="h-10 w-10 rounded-full"
+            className={`h-10 w-10 rounded-full transition-opacity ${currentPage === 0 ? "opacity-0 pointer-events-none" : "opacity-100"}`}
             aria-label="Artículos anteriores"
+            disabled={currentPage === 0}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
+        ) : (
+          <div className="w-10" />
         )}
         
         <h2 className="flex-1 text-2xl font-semibold text-foreground text-center">
           Artículos relacionados
         </h2>
         
-        {showNavigation && (
+        {showNavigation ? (
           <Button
             variant="outline"
             size="icon"
             onClick={handleNext}
-            className="h-10 w-10 rounded-full"
+            className={`h-10 w-10 rounded-full transition-opacity ${currentPage === totalPages - 1 ? "opacity-0 pointer-events-none" : "opacity-100"}`}
             aria-label="Más artículos"
+            disabled={currentPage === totalPages - 1}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
+        ) : (
+          <div className="w-10" />
         )}
       </div>
       
