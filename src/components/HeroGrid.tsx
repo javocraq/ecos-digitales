@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { format, formatDistanceToNow, differenceInHours } from "date-fns";
+import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { OptimizedImage } from "./OptimizedImage";
 import { Skeleton } from "./ui/skeleton";
@@ -7,17 +7,30 @@ import type { Article } from "@/hooks/useArticles";
 
 // Helper to format date with relative time for recent articles
 const formatArticleDate = (dateString: string) => {
+  const now = new Date();
   const date = new Date(dateString);
-  const hoursAgo = differenceInHours(new Date(), date);
   
-  if (hoursAgo < 24) {
-    // Within 24 hours: show relative time
-    const relative = formatDistanceToNow(date, { locale: es, addSuffix: true });
-    // Remove "alrededor de" prefix for cleaner display
-    return relative.replace(/^alrededor de\s/i, "");
+  // Check if it's the same day
+  const isSameDay = 
+    now.getDate() === date.getDate() &&
+    now.getMonth() === date.getMonth() &&
+    now.getFullYear() === date.getFullYear();
+  
+  if (isSameDay) {
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffMinutes < 1) {
+      return "hace un momento";
+    } else if (diffMinutes < 60) {
+      return `hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
+    } else {
+      return `hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
+    }
   }
   
-  // After 24 hours: show fixed date
+  // Different day: show fixed date
   return format(date, "d MMM", { locale: es });
 };
 
