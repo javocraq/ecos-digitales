@@ -58,7 +58,7 @@ const Jobs = () => {
                 <h2 className="mb-4 text-sm font-semibold text-foreground lg:hidden">Trabajos</h2>
                 
                 {/* Lista de Trabajos con scroll */}
-                <div className="lg:h-[600px] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
+                <div className="lg:h-[calc(100vh-180px)] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
                   {filteredAndSortedJobs.length > 0 ? (
                     <div>
                       {filteredAndSortedJobs.map(job => (
@@ -86,7 +86,7 @@ const Jobs = () => {
               </div>
 
               {/* Sidebar - Noticias (después de trabajos en mobile) */}
-              <aside className="w-full lg:w-72 flex-shrink-0 order-2 lg:h-[600px] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
+              <aside className="w-full lg:w-72 flex-shrink-0 order-2 lg:h-[calc(100vh-180px)] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
                 <LatestNewsWidget />
               </aside>
             </div>
