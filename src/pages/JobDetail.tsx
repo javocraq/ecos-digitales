@@ -226,13 +226,6 @@ const JobDetail = () => {
             </Button>
           </header>
 
-          {/* Short Description */}
-          {job.short_description && (
-            <p className="mb-12 text-foreground/90 leading-relaxed">
-              {job.short_description}
-            </p>
-          )}
-
           {/* Description */}
           <div className="prose-content">
             {renderMarkdown(job.description)}
