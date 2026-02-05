@@ -22,7 +22,7 @@ const Index = () => {
     refetch 
   } = useArticles();
   
-  const { data: latestVideo, isLoading: isVideoLoading } = useLatestVideo();
+  const { data: latestVideo, isLoading: isVideoLoading, error: videoError } = useLatestVideo();
 
   // Filter articles by category
   const filteredArticles = useMemo(() => {
@@ -77,11 +77,11 @@ const Index = () => {
             )}
 
             {/* Featured Video Section - Solo se muestra si hay datos del API */}
-            {latestVideo && (
+            {(latestVideo || isVideoLoading) && (
               <FeaturedVideo
-                videoId={latestVideo.videoId}
-                title={latestVideo.title}
-                description={latestVideo.description}
+                videoId={latestVideo?.videoId || ""}
+                title={latestVideo?.title || ""}
+                description={latestVideo?.description || ""}
                 isLoading={isVideoLoading}
               />
             )}
