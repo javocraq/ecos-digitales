@@ -125,8 +125,8 @@ const normalizeJob = (raw: any): Job | null => {
     company,
     company_logo: raw.company_logo ?? null,
     location: typeof raw.location === "string" && raw.location.trim() ? raw.location : "—",
-    remote_type: raw.remote_type === "Remote" || raw.remote_type === "Hybrid" || raw.remote_type === "On-site"
-      ? raw.remote_type
+    remote_type: typeof raw.remote_type === "string" && raw.remote_type.trim()
+      ? raw.remote_type.trim()
       : "On-site",
     job_type:
       raw.job_type === "Full-time" ||
