@@ -10,6 +10,7 @@ export interface Job {
   location: string;
   remote_type: "Remote" | "Hybrid" | "On-site";
   job_type: "Full-time" | "Part-time" | "Contract" | "Internship";
+  experience_level?: string | null;
   category: string;
   description: string;
   short_description?: string | null;
