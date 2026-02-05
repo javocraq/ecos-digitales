@@ -16,7 +16,7 @@ export interface Article {
   updated_at: string;
 }
 
-const N8N_API_URL = "https://javocraq.app.n8n.cloud/webhook/v1/articles";
+ const N8N_API_URL = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/articles";
 
 export const useArticles = () => {
   return useQuery({

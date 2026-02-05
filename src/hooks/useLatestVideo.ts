@@ -11,7 +11,7 @@ interface Video {
   updatedAt: string;
 }
 
-const N8N_VIDEOS_URL = "https://javocraq.app.n8n.cloud/webhook/v1/videos";
+ const N8N_VIDEOS_URL = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/videos";
 
 // Extrae el videoId de una URL de YouTube (siempre 11 caracteres)
 const extractVideoId = (url: string): string | null => {

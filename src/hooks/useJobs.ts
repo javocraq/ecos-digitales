@@ -27,7 +27,7 @@ export interface Job {
   updated_at?: string;
 }
 
-const N8N_JOBS_URL = "https://javocraq.app.n8n.cloud/webhook/v1/jobs";
+ const N8N_JOBS_URL = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/jobs";
 
 const isVisibleJobStatus = (status: unknown) => {
   // n8n puede devolver "active" (según tu ejemplo) o "published" (según implementación previa).
