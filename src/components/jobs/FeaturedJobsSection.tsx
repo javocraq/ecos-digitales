@@ -45,7 +45,7 @@ export const FeaturedJobsSection = () => {
           Oportunidades Laborales
         </h2>
         <Link
-          to="/trabajos"
+          to="/"
           className="flex items-center gap-1 text-sm text-primary hover:underline"
         >
           Ver todos los trabajos
