@@ -29,6 +29,8 @@ export const JobListItem = ({ job }: JobListItemProps) => {
       {/* Metadata */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {job.experience_level && <span>{job.experience_level}</span>}
+        {job.experience_level && job.remote_type && <span>•</span>}
+        {job.remote_type && <span>{job.remote_type}</span>}
       </div>
     </Link>
   );
