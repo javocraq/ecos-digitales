@@ -23,14 +23,9 @@ export const CrossCategoryArticles = ({ articles, currentCategory, currentSlug }
           <li key={article.slug}>
             <Link
               to={`/noticias/${article.slug}`}
-              className="group flex items-start gap-3"
+              className="text-[15px] text-foreground/80 hover:text-primary transition-colors"
             >
-              <span className="mt-1 inline-block rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                {article.category}
-              </span>
-              <span className="text-[15px] text-foreground/80 group-hover:text-primary transition-colors">
-                {article.title}
-              </span>
+              {article.title}
             </Link>
           </li>
         ))}
