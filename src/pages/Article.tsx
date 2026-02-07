@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { TagPill } from "@/components/TagPill";
 import { ArticleMeta } from "@/components/ArticleMeta";
 import { RelatedArticles } from "@/components/RelatedArticles";
+import { InlineRelatedArticles } from "@/components/InlineRelatedArticles";
 import { CrossCategoryArticles } from "@/components/CrossCategoryArticles";
 import { ArticleDetailSkeleton } from "@/components/ArticleDetailSkeleton";
 import { SEO } from "@/components/SEO";
@@ -139,7 +140,18 @@ const Article = () => {
     );
   };
 
-  // Main content renderer
+  // Check if article is long enough for inline related (>500 words)
+  const wordCount = article.content?.split(/\s+/).length || 0;
+  const showInlineRelated = wordCount > 500;
+
+  // Inline related articles (different from bottom related)
+  const inlineRelatedArticles = article && allArticles
+    ? allArticles
+        .filter(a => a.category === article.category && a.slug !== article.slug)
+        .slice(0, 2)
+    : [];
+
+  // Main content renderer - splits at 50% to inject inline related
   const renderContent = (content: string) => {
     // Split by double newlines but keep code blocks together
     const blocks: string[] = [];
@@ -169,50 +181,60 @@ const Article = () => {
     });
     if (currentBlock.trim()) blocks.push(currentBlock);
 
+    const midpoint = Math.floor(blocks.length / 2);
+    let inlineInserted = false;
+
     return blocks.map((block, index) => {
+      const elements: React.ReactNode[] = [];
+
+      // Insert inline related at ~50%
+      if (showInlineRelated && !inlineInserted && index >= midpoint) {
+        inlineInserted = true;
+        elements.push(
+          <InlineRelatedArticles
+            key="inline-related"
+            articles={inlineRelatedArticles}
+            currentSlug={article.slug}
+          />
+        );
+      }
+
       // Code blocks
       if (block.startsWith('```')) {
-        return renderCodeBlock(block, index);
-      }
-      // Tables
-      if (isTable(block)) {
-        return renderTable(block, index);
-      }
-      // Lists
-      if (isList(block)) {
-        return renderList(block, index);
-      }
-      // Headers
-      if (block.startsWith('## ')) {
-        return (
+        elements.push(renderCodeBlock(block, index));
+      } else if (isTable(block)) {
+        elements.push(renderTable(block, index));
+      } else if (isList(block)) {
+        elements.push(renderList(block, index));
+      } else if (block.startsWith('## ')) {
+        elements.push(
           <h2 key={index} className="text-2xl font-semibold mt-10 mb-4 text-foreground font-sans">
             {block.replace('## ', '')}
           </h2>
         );
-      }
-      if (block.startsWith('### ')) {
-        return (
+      } else if (block.startsWith('### ')) {
+        elements.push(
           <h3 key={index} className="text-xl font-semibold mt-8 mb-3 text-foreground font-sans">
             {block.replace('### ', '')}
           </h3>
         );
-      }
-      // Blockquotes
-      if (block.startsWith('> ')) {
-        return (
+      } else if (block.startsWith('> ')) {
+        elements.push(
           <blockquote key={index} className="border-l-4 border-primary pl-6 italic my-8 text-muted-foreground">
             {block.replace('> ', '')}
           </blockquote>
         );
+      } else {
+        elements.push(
+          <p 
+            key={index} 
+            className="mb-6 text-[15px] lg:text-lg text-foreground/90 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: renderInlineMarkdown(block) }}
+          />
+        );
       }
-      // Regular paragraphs with inline formatting
-      return (
-        <p 
-          key={index} 
-          className="mb-6 text-[15px] lg:text-lg text-foreground/90 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: renderInlineMarkdown(block) }}
-        />
-      );
+
+      return elements;
     });
   };
 
