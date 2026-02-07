@@ -20,22 +20,25 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
           <Link
             key={article.slug}
             to={`/noticias/${article.slug}`}
-            className="group flex flex-row items-center gap-3"
+            className="group flex flex-row items-start gap-4 no-underline"
           >
+            {/* Mobile: text left + image right (like Artículos relacionados). Desktop: image left + text right */}
+            <div className="flex-1 min-w-0 sm:order-2">
+              <span className="text-base sm:text-sm sm:lg:text-[17px] font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-3 no-underline decoration-transparent">
+                {article.title}
+              </span>
+            </div>
             {article.image_url && (
-              <img
-                src={article.image_url}
-                alt=""
-                width={80}
-                height={48}
-                className="block rounded object-cover"
-                style={{ width: 88, height: 53, flexShrink: 0 }}
-                loading="lazy"
-              />
+              <div className="relative h-20 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted sm:order-1 sm:h-auto sm:w-auto">
+                <img
+                  src={article.image_url}
+                  alt=""
+                  className="h-full w-full object-cover sm:rounded"
+                  style={{ minWidth: 88, minHeight: 53 }}
+                  loading="lazy"
+                />
+              </div>
             )}
-            <span className="text-sm lg:text-[17px] font-medium leading-snug text-foreground group-hover:text-primary transition-colors no-underline line-clamp-2">
-              {article.title}
-            </span>
           </Link>
         ))}
       </div>
