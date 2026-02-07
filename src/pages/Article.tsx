@@ -17,11 +17,20 @@ const Article = () => {
   // Fetch article from n8n API
   const { data: article, isLoading: isArticleLoading } = useArticleBySlug(slug || "");
   const { data: allArticles } = useArticles();
-  
-  // Get related articles from the same category (up to 9 most recent)
-  const relatedArticles = article && allArticles
+
+  // Inline related: 2 articles from same category
+  const inlineRelatedArticles = article && allArticles
     ? allArticles
         .filter(a => a.category === article.category && a.slug !== article.slug)
+        .slice(0, 2)
+    : [];
+
+  const inlineSlugs = new Set(inlineRelatedArticles.map(a => a.slug));
+
+  // Related articles: same category, excluding inline ones
+  const relatedArticles = article && allArticles
+    ? allArticles
+        .filter(a => a.category === article.category && a.slug !== article.slug && !inlineSlugs.has(a.slug))
         .slice(0, 9)
     : [];
 
@@ -143,13 +152,6 @@ const Article = () => {
   // Check if article is long enough for inline related (>200 words)
   const wordCount = article.content?.split(/\s+/).length || 0;
   const showInlineRelated = wordCount > 200;
-
-  // Inline related articles (different from bottom related)
-  const inlineRelatedArticles = article && allArticles
-    ? allArticles
-        .filter(a => a.category === article.category && a.slug !== article.slug)
-        .slice(0, 2)
-    : [];
 
   // Main content renderer - splits at 50% to inject inline related
   const renderContent = (content: string) => {
