@@ -23,14 +23,12 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
             className="group flex items-center gap-3"
           >
             {article.image_url && (
-              <div className="h-14 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
-                <img
-                  src={article.image_url}
-                  alt={article.title}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </div>
+              <img
+                src={article.image_url}
+                alt={article.title}
+                className="h-12 w-20 flex-shrink-0 rounded object-cover"
+                loading="lazy"
+              />
             )}
             <span className="text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
               {article.title}
