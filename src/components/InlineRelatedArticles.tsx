@@ -29,11 +29,11 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
                 width={80}
                 height={48}
                 className="block rounded object-cover"
-                style={{ width: 80, height: 48, flexShrink: 0 }}
+                style={{ width: 88, height: 53, flexShrink: 0 }}
                 loading="lazy"
               />
             )}
-            <span className="text-[15px] lg:text-lg font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            <span className="text-sm lg:text-[17px] font-medium leading-snug text-foreground group-hover:text-primary transition-colors no-underline line-clamp-2">
               {article.title}
             </span>
           </Link>
