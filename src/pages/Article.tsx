@@ -140,9 +140,9 @@ const Article = () => {
     );
   };
 
-  // Check if article is long enough for inline related (>500 words)
+  // Check if article is long enough for inline related (>200 words)
   const wordCount = article.content?.split(/\s+/).length || 0;
-  const showInlineRelated = wordCount > 500;
+  const showInlineRelated = wordCount > 200;
 
   // Inline related articles (different from bottom related)
   const inlineRelatedArticles = article && allArticles
