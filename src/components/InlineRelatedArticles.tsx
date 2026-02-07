@@ -15,18 +15,21 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
       <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Te puede interesar
       </p>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         {displayed.map(article => (
           <Link
             key={article.slug}
             to={`/noticias/${article.slug}`}
-            className="group flex items-center gap-3"
+            className="group flex flex-row items-center gap-3"
           >
             {article.image_url && (
               <img
                 src={article.image_url}
-                alt={article.title}
-                className="h-12 w-20 flex-shrink-0 rounded object-cover"
+                alt=""
+                width={80}
+                height={48}
+                className="block rounded object-cover"
+                style={{ width: 80, height: 48, flexShrink: 0 }}
                 loading="lazy"
               />
             )}
