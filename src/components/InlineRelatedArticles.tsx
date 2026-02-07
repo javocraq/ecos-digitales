@@ -23,7 +23,7 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
             className="group flex items-center gap-3"
           >
             {article.image_url && (
-              <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+              <div className="h-14 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
                 <img
                   src={article.image_url}
                   alt={article.title}
@@ -32,18 +32,9 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
                 />
               </div>
             )}
-            <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                {article.title}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {new Date(article.published_date).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              </span>
-            </div>
+            <span className="text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+              {article.title}
+            </span>
           </Link>
         ))}
       </div>
