@@ -33,7 +33,7 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
                 loading="lazy"
               />
             )}
-            <span className="text-sm font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            <span className="text-[15px] lg:text-lg font-medium leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
               {article.title}
             </span>
           </Link>
