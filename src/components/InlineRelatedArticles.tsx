@@ -20,7 +20,7 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
           <Link
             key={article.slug}
             to={`/noticias/${article.slug}`}
-            className="group flex flex-row items-center gap-3"
+            className="group flex flex-row items-center gap-3 no-underline"
           >
             {article.image_url && (
               <img
