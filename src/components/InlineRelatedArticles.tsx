@@ -15,7 +15,7 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
       <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Te puede interesar
       </p>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         {displayed.map(article => (
           <Link
             key={article.slug}
