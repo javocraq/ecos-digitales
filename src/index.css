@@ -160,6 +160,10 @@
     @apply text-primary underline underline-offset-2 hover:text-primary/80 transition-colors;
   }
 
+  .article-content aside a {
+    @apply no-underline;
+  }
+
   .article-content img {
     @apply rounded-lg my-8 w-full;
   }
