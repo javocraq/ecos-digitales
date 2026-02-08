@@ -315,12 +315,19 @@ const Article = () => {
 
           {/* Featured Image */}
           {article.image_url && (
-            <div className="mb-10 overflow-hidden rounded-2xl">
-              <img
-                src={article.image_url}
-                alt={article.title}
-                className="aspect-video w-full object-cover"
-              />
+            <div className="mb-10">
+              <div className="overflow-hidden rounded-2xl">
+                <img
+                  src={article.image_url}
+                  alt={article.title}
+                  className="aspect-video w-full object-cover"
+                />
+              </div>
+              {article.image_source && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  vía {article.image_source}
+                </p>
+              )}
             </div>
           )}
 
