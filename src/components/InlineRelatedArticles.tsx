@@ -11,8 +11,8 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
   if (displayed.length === 0) return null;
 
   return (
-    <aside className="my-10 rounded-lg border-l-4 border-primary bg-muted/40 p-5">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <aside className="my-10 rounded-lg bg-muted/40 p-5">
+      <p className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground">
         Te puede interesar
       </p>
       <div className="flex flex-col gap-2">
