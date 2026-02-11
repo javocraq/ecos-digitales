@@ -309,65 +309,56 @@ const ToolDetail = () => {
           )}
 
           <div className="container py-8">
+            <article className="mx-auto max-w-3xl">
+              {/* Category badge */}
+              <Badge className="mb-3">{category}</Badge>
 
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-              {/* Main content */}
-              <article className="flex-1 min-w-0 max-w-3xl">
-                {/* Category badge */}
-                <Badge className="mb-3">{category}</Badge>
+              {/* Title */}
+              <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl">
+                {tool.product_name}
+              </h1>
 
-                {/* Title */}
-                <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-                  {tool.product_name}
-                </h1>
+              {tool.short_description && (
+                <p className="mt-3 text-lg text-muted-foreground">{tool.short_description}</p>
+              )}
 
-                {tool.short_description && (
-                  <p className="mt-3 text-lg text-muted-foreground">{tool.short_description}</p>
+              {/* CTA row */}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                {tool.affiliate_url && (
+                  <Button asChild size="lg">
+                    <a href={tool.affiliate_url} target="_blank" rel="noopener noreferrer">
+                      Obtener {tool.product_name}
+                      <ExternalLink className="ml-1.5 h-4 w-4" />
+                    </a>
+                  </Button>
                 )}
-
-                {/* CTA row */}
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  {tool.affiliate_url && (
-                    <Button asChild size="lg">
-                      <a href={tool.affiliate_url} target="_blank" rel="noopener noreferrer">
-                        Obtener {tool.product_name}
-                        <ExternalLink className="ml-1.5 h-4 w-4" />
-                      </a>
-                    </Button>
-                  )}
-                  {tool.referral_code && (
-                    <Button variant="outline" size="lg" onClick={handleCopyReferral} className="gap-1.5">
-                      <Copy className="h-4 w-4" />
-                      Código: {tool.referral_code}
-                    </Button>
-                  )}
-                </div>
-
-                {/* Description */}
-                <div className="article-content mt-10">
-                  {renderMarkdownContent(tool.description)}
-                </div>
-
-                {/* Related articles */}
-                {relatedArticles.length > 0 && (
-                  <section className="mt-12 border-t border-border pt-8">
-                    <h2 className="mb-6 text-xl font-semibold text-foreground">
-                      Artículos relacionados sobre {tool.product_name}
-                    </h2>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {relatedArticles.map((article) => (
-                        <ArticleCard key={article.slug} article={article} variant="grid" />
-                      ))}
-                    </div>
-                  </section>
+                {tool.referral_code && (
+                  <Button variant="outline" size="lg" onClick={handleCopyReferral} className="gap-1.5">
+                    <Copy className="h-4 w-4" />
+                    Código: {tool.referral_code}
+                  </Button>
                 )}
-              </article>
+              </div>
 
-              {/* Sidebar – hidden on mobile, shown below CTA section on small screens */}
-              <aside className="w-full lg:w-72 flex-shrink-0">
-                <ToolSidebarCard tool={tool} onCopy={handleCopyReferral} />
-              </aside>
-            </div>
+              {/* Description */}
+              <div className="article-content mt-10">
+                {renderMarkdownContent(tool.description)}
+              </div>
+
+              {/* Related articles */}
+              {relatedArticles.length > 0 && (
+                <section className="mt-12 border-t border-border pt-8">
+                  <h2 className="mb-6 text-xl font-semibold text-foreground">
+                    Artículos relacionados sobre {tool.product_name}
+                  </h2>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {relatedArticles.map((article) => (
+                      <ArticleCard key={article.slug} article={article} variant="grid" />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </article>
           </div>
         </main>
 
