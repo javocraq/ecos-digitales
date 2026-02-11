@@ -44,11 +44,6 @@ const ToolCard = ({ tool }: { tool: Tool }) => {
           </h3>
         </div>
 
-        {tool.referral_code && (
-          <Badge className="absolute left-3 top-3 bg-primary text-primary-foreground text-[10px]">
-            Código de referido disponible
-          </Badge>
-        )}
       </div>
 
       {/* Content - hidden on mobile, shown on desktop */}
