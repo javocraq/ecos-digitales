@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useTools } from "@/hooks/useTools";
 import { useArticles } from "@/hooks/useArticles";
 import { ArticleCard } from "@/components/ArticleCard";
-import { ArrowLeft, ExternalLink, Copy, ChevronRight } from "lucide-react";
+import { ExternalLink, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 /** Infer a category badge from the product name */
@@ -153,58 +153,6 @@ const DetailSkeleton = () => (
   </div>
 );
 
-// ── Sidebar card ───────────────────────────────────────────────────────
-const ToolSidebarCard = ({
-  tool,
-  onCopy,
-}: {
-  tool: { product_name: string; short_description: string; image_url: string; affiliate_url: string; referral_code: string };
-  onCopy: () => void;
-}) => {
-  const initials = tool.product_name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-5 sticky top-24">
-      {/* Image */}
-      <div className="mb-4 aspect-video w-full overflow-hidden rounded-lg bg-muted">
-        {tool.image_url ? (
-          <img src={tool.image_url} alt={tool.product_name} className="h-full w-full object-cover" loading="lazy" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-muted-foreground">
-            {initials}
-          </div>
-        )}
-      </div>
-
-      <h3 className="text-lg font-semibold text-foreground">{tool.product_name}</h3>
-      {tool.short_description && (
-        <p className="mt-1 text-sm text-muted-foreground line-clamp-3">{tool.short_description}</p>
-      )}
-
-      {tool.affiliate_url && (
-        <Button asChild className="mt-4 w-full">
-          <a href={tool.affiliate_url} target="_blank" rel="noopener noreferrer">
-            Obtener {tool.product_name}
-            <ExternalLink className="ml-1.5 h-4 w-4" />
-          </a>
-        </Button>
-      )}
-
-      {tool.referral_code && (
-        <Button variant="outline" onClick={onCopy} className="mt-2 w-full gap-1.5 text-xs">
-          <Copy className="h-3.5 w-3.5" />
-          Código: {tool.referral_code}
-        </Button>
-      )}
-    </div>
-  );
-};
-
 // ── Main page ──────────────────────────────────────────────────────────
 const ToolDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -242,11 +190,9 @@ const ToolDetail = () => {
       .slice(0, 3);
   }, [tool, allArticles]);
 
-  const handleCopyReferral = () => {
-    if (tool?.referral_code) {
-      navigator.clipboard.writeText(tool.referral_code);
-      toast.success("Código de referido copiado");
-    }
+  const handleShare = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.success("Enlace copiado al portapapeles");
   };
 
   if (isLoading) return <DetailSkeleton />;
@@ -310,35 +256,48 @@ const ToolDetail = () => {
 
           <div className="container py-8">
             <article className="mx-auto max-w-3xl">
-              {/* Category badge */}
-              <Badge className="mb-3">{category}</Badge>
+              <header className="mb-10">
+                {/* Category badge */}
+                <div className="mb-4">
+                  <Badge>{category}</Badge>
+                </div>
 
-              {/* Title */}
-              <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-                {tool.product_name}
-              </h1>
+                {/* Title */}
+                <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-5xl mb-6">
+                  {tool.product_name}
+                </h1>
 
-              {tool.short_description && (
-                <p className="mt-3 text-lg text-muted-foreground">{tool.short_description}</p>
-              )}
+                {/* Meta row with share button */}
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                  {tool.short_description && (
+                    <p className="text-sm text-muted-foreground">{tool.short_description}</p>
+                  )}
 
-              {/* CTA row */}
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+                  {/* Share button - Desktop only */}
+                  <button
+                    onClick={handleShare}
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    aria-label="Compartir herramienta"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Compartir</span>
+                  </button>
+                </div>
+
+                {/* CTA Button */}
                 {tool.affiliate_url && (
-                  <Button asChild size="lg">
+                  <Button
+                    asChild
+                    className="w-full sm:w-auto font-semibold text-base py-3 px-8 rounded-lg"
+                    size="lg"
+                  >
                     <a href={tool.affiliate_url} target="_blank" rel="noopener noreferrer">
                       Obtener {tool.product_name}
                       <ExternalLink className="ml-1.5 h-4 w-4" />
                     </a>
                   </Button>
                 )}
-                {tool.referral_code && (
-                  <Button variant="outline" size="lg" onClick={handleCopyReferral} className="gap-1.5">
-                    <Copy className="h-4 w-4" />
-                    Código: {tool.referral_code}
-                  </Button>
-                )}
-              </div>
+              </header>
 
               {/* Description */}
               <div className="article-content mt-10">
