@@ -267,10 +267,25 @@ const ToolDetail = () => {
                   {tool.product_name}
                 </h1>
 
-                {/* Meta row with share button */}
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                  {tool.short_description && (
-                    <p className="text-sm text-muted-foreground">{tool.short_description}</p>
+                {/* Meta row */}
+                {tool.short_description && (
+                  <p className="text-sm text-muted-foreground mb-6">{tool.short_description}</p>
+                )}
+
+                {/* CTA + Share row */}
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  {/* CTA Button */}
+                  {tool.affiliate_url && (
+                    <Button
+                      asChild
+                      className="w-full sm:w-auto font-semibold text-base py-3 px-8 rounded-lg"
+                      size="lg"
+                    >
+                      <a href={tool.affiliate_url} target="_blank" rel="noopener noreferrer">
+                        Obtener {tool.product_name}
+                        <ExternalLink className="ml-1.5 h-4 w-4" />
+                      </a>
+                    </Button>
                   )}
 
                   {/* Share button - Desktop only */}
@@ -283,20 +298,6 @@ const ToolDetail = () => {
                     <span>Compartir</span>
                   </button>
                 </div>
-
-                {/* CTA Button */}
-                {tool.affiliate_url && (
-                  <Button
-                    asChild
-                    className="w-full sm:w-auto font-semibold text-base py-3 px-8 rounded-lg"
-                    size="lg"
-                  >
-                    <a href={tool.affiliate_url} target="_blank" rel="noopener noreferrer">
-                      Obtener {tool.product_name}
-                      <ExternalLink className="ml-1.5 h-4 w-4" />
-                    </a>
-                  </Button>
-                )}
               </header>
 
               {/* Description */}
