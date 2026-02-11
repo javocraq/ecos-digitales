@@ -7,6 +7,10 @@
 /* Font loaded via preload in index.html for better performance */
 
 @layer base {
+  html, body {
+    overflow-x: hidden;
+  }
+
   :root {
     /* Background & Surface - SWAPPED */
     --background: 0 0% 100%;
