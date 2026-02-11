@@ -277,7 +277,7 @@ const ToolDetail = () => {
                   {/* Share button - Desktop only */}
                   <button
                     onClick={handleShare}
-                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     aria-label="Compartir herramienta"
                   >
                     <Share2 className="h-4 w-4" />
