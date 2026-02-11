@@ -223,7 +223,7 @@ const ToolDetail = () => {
         }}
       />
       <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
-        <Header />
+        <Header showShare />
 
         <main className="flex-1">
           {/* Hero image */}
@@ -274,10 +274,10 @@ const ToolDetail = () => {
                     </Button>
                   )}
 
-                  {/* Share button - Desktop only */}
+                  {/* Share button - Desktop only (mobile share is in Header) */}
                   <button
                     onClick={handleShare}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     aria-label="Compartir herramienta"
                   >
                     <Share2 className="h-4 w-4" />
