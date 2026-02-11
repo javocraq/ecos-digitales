@@ -309,14 +309,6 @@ const ToolDetail = () => {
           )}
 
           <div className="container py-8">
-            {/* Breadcrumb */}
-            <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-              <ChevronRight className="h-3.5 w-3.5" />
-              <Link to="/toolbox" className="hover:text-foreground transition-colors">Toolbox</Link>
-              <ChevronRight className="h-3.5 w-3.5" />
-              <span className="text-foreground font-medium truncate">{tool.product_name}</span>
-            </nav>
 
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
               {/* Main content */}
