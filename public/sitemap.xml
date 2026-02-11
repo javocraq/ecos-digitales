@@ -3,64 +3,71 @@
   
   <!-- Páginas principales -->
   <url>
-    <loc>https://nucleo.la/</loc>
-    <lastmod>2026-02-07</lastmod>
+    <loc>https://nucleotech.news/</loc>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/noticias</loc>
-    <lastmod>2026-02-07</lastmod>
+    <loc>https://nucleotech.news/noticias</loc>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/trabajos</loc>
-    <lastmod>2026-02-07</lastmod>
+    <loc>https://nucleotech.news/trabajos</loc>
+    <lastmod>2026-02-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://nucleotech.news/toolbox</loc>
+    <lastmod>2026-02-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <!-- Artículos de noticias -->
   <url>
-    <loc>https://nucleo.la/noticias/claude-opus-46-programacion-tareas-laborales</loc>
+    <loc>https://nucleotech.news/noticias/claude-opus-46-programacion-tareas-laborales</loc>
     <lastmod>2026-02-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/noticias/airtag-2-apple-mejora-alcance</loc>
+    <loc>https://nucleotech.news/noticias/airtag-2-apple-mejora-alcance</loc>
     <lastmod>2026-02-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/noticias/trump-t1-nuevo-diseno</loc>
+    <loc>https://nucleotech.news/noticias/trump-t1-nuevo-diseno</loc>
     <lastmod>2026-02-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/noticias/kindle-scribe-colorsoft</loc>
+    <loc>https://nucleotech.news/noticias/kindle-scribe-colorsoft</loc>
     <lastmod>2026-02-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/noticias/shinyhunters-vishing-robo-mfa-saas</loc>
+    <loc>https://nucleotech.news/noticias/shinyhunters-vishing-robo-mfa-saas</loc>
     <lastmod>2026-02-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://nucleo.la/noticias/amazon-sagemaker-bedrock-mejoras-agentes-seguridad</loc>
+    <loc>https://nucleotech.news/noticias/amazon-sagemaker-bedrock-mejoras-agentes-seguridad</loc>
     <lastmod>2026-02-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

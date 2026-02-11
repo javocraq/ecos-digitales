@@ -8,6 +8,7 @@ const corsHeaders = {
 const SITE_URL = "https://nucleotech.news";
 const ARTICLES_API = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/articles";
 const JOBS_API = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/jobs";
+const TOOLS_API = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/tools";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -16,13 +17,15 @@ serve(async (req) => {
 
   try {
     // Fetch articles and jobs in parallel
-    const [articlesRes, jobsRes] = await Promise.all([
+    const [articlesRes, jobsRes, toolsRes] = await Promise.all([
       fetch(ARTICLES_API).catch(() => null),
       fetch(JOBS_API).catch(() => null),
+      fetch(TOOLS_API).catch(() => null),
     ]);
 
     const articles = articlesRes?.ok ? await articlesRes.json() : [];
     const jobs = jobsRes?.ok ? await jobsRes.json() : [];
+    const tools = toolsRes?.ok ? await toolsRes.json() : [];
 
     const publishedArticles = Array.isArray(articles)
       ? articles.filter((a: any) => a?.status === "published" && a?.slug)
@@ -30,6 +33,10 @@ serve(async (req) => {
 
     const activeJobs = Array.isArray(jobs)
       ? jobs.filter((j: any) => (j?.status === "active" || j?.status === "published") && j?.title)
+      : [];
+
+    const activeTools = Array.isArray(tools)
+      ? tools.filter((t: any) => t?.slug)
       : [];
 
     // Generate slug for jobs (same logic as frontend)
@@ -72,6 +79,12 @@ serve(async (req) => {
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <lastmod>${today}</lastmod>
+  </url>
+  <url>
+    <loc>${SITE_URL}/toolbox</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <lastmod>${today}</lastmod>
   </url>`;
 
     for (const article of publishedArticles) {
@@ -94,6 +107,16 @@ serve(async (req) => {
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>${lastmod}</lastmod>
+  </url>`;
+    }
+
+    for (const tool of activeTools) {
+      xml += `
+  <url>
+    <loc>${SITE_URL}/toolbox/${tool.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${today}</lastmod>
   </url>`;
     }
 
