@@ -171,7 +171,7 @@ const DesktopRelatedCard = ({ article }: { article: Article }) => {
           </h3>
           <div className="mt-auto flex items-end justify-between pt-5 text-sm text-muted-foreground">
             <div className="flex flex-col">
-              <span>Por {author}</span>
+              
               <span>{formattedDate}</span>
             </div>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
