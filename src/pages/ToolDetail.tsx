@@ -228,7 +228,7 @@ const ToolDetail = () => {
         <main className="flex-1">
           {/* Hero image */}
           {tool.image_url && (
-            <div className="w-full bg-muted">
+            <div className="w-full bg-background">
               <div className="container">
                 <div className="mx-auto max-w-4xl overflow-hidden rounded-b-2xl">
                   <img
