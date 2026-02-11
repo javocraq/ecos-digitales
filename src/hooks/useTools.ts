@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
 export interface Tool {
-  id: string | number;
-  name: string;
+  product_name: string;
   description: string;
-  category: string;
-  url: string;
-  image_url?: string | null;
-  slug?: string;
-  status?: string;
+  slug: string;
+  short_description: string;
+  affiliate_url: string;
+  referral_code: string;
+  image_url: string;
   [key: string]: unknown;
 }
 
@@ -24,19 +23,16 @@ export const useTools = () => {
       }
 
       const data = await response.json();
-      console.log("Tools recibidos:", data);
-
       if (!Array.isArray(data)) return [];
 
       return data.map((raw: any) => ({
-        id: raw.id ?? raw.slug ?? String(Math.random()),
-        name: raw.name ?? raw.title ?? "",
+        product_name: raw.product_name ?? raw.name ?? "",
         description: raw.description ?? "",
-        category: raw.category ?? "General",
-        url: raw.url ?? raw.website ?? raw.link ?? "",
-        image_url: raw.image_url ?? raw.logo_url ?? raw.icon_url ?? null,
         slug: raw.slug ?? "",
-        status: raw.status ?? "active",
+        short_description: raw.short_description ?? "",
+        affiliate_url: raw.affiliate_url ?? raw.url ?? "",
+        referral_code: raw.referral_code ?? "",
+        image_url: raw.image_url ?? "",
         ...raw,
       }));
     },

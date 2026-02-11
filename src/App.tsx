@@ -12,6 +12,8 @@ const Index = lazy(() => import("./pages/Index"));
 const Article = lazy(() => import("./pages/Article"));
 const Jobs = lazy(() => import("./pages/Jobs"));
 const JobDetail = lazy(() => import("./pages/JobDetail"));
+const Toolbox = lazy(() => import("./pages/Toolbox"));
+const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Search = lazy(() => import("./pages/Search"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -40,6 +42,8 @@ const App = () => (
             <Route path="/buscar" element={<Search />} />
             <Route path="/noticias/:slug" element={<Article />} />
             <Route path="/trabajos/:slug" element={<JobDetail />} />
+            <Route path="/toolbox" element={<Toolbox />} />
+            <Route path="/toolbox/:slug" element={<ToolDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

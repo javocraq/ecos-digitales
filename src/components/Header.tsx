@@ -62,6 +62,7 @@ export const Header = ({ showShare = false, shareTitle }: HeaderProps) => {
 
   const navLinks = [
     { to: "/noticias", label: "Noticias" },
+    { to: "/toolbox", label: "Toolbox" },
   ];
 
   return (
