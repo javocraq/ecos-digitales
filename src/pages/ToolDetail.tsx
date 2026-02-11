@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTools } from "@/hooks/useTools";
 import { useArticles } from "@/hooks/useArticles";
-import { ArticleCard } from "@/components/ArticleCard";
+import { RelatedArticles } from "@/components/RelatedArticles";
 import { ExternalLink, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -305,19 +305,8 @@ const ToolDetail = () => {
                 {renderMarkdownContent(tool.description)}
               </div>
 
-              {/* Related articles */}
-              {relatedArticles.length > 0 && (
-                <section className="mt-12 border-t border-border pt-8">
-                  <h2 className="mb-6 text-xl font-semibold text-foreground">
-                    Artículos relacionados sobre {tool.product_name}
-                  </h2>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {relatedArticles.map((article) => (
-                      <ArticleCard key={article.slug} article={article} variant="grid" />
-                    ))}
-                  </div>
-                </section>
-              )}
+              {/* Related articles - same carousel as news */}
+              <RelatedArticles articles={relatedArticles} />
             </article>
           </div>
         </main>
