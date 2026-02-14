@@ -236,8 +236,6 @@ const JobDetail = () => {
                 </div>
                 <span className="text-muted-foreground/40">•</span>
                 <span className="text-sm">{job.remote_type}</span>
-                <span className="text-muted-foreground/40">•</span>
-                <span className="text-sm">{job.job_type}</span>
               </div>
 
               {/* Share button - Desktop only (mobile in header) */}
