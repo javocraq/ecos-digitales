@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JobListItem } from "@/components/jobs/JobListItem";
@@ -11,7 +12,8 @@ import { useJobs } from "@/hooks/useJobs";
 
 const Jobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [visibleCount, setVisibleCount] = useState(10);
+  const isMobile = useIsMobile();
   const {
     data: jobs,
     isLoading,
@@ -69,9 +71,19 @@ const Jobs = () => {
                 <div className="lg:h-[calc(100vh-180px)] lg:overflow-y-auto lg:pr-2 scrollbar-thin">
                   {filteredAndSortedJobs.length > 0 ? (
                     <div>
-                      {filteredAndSortedJobs.map(job => (
+                      {(isMobile ? filteredAndSortedJobs.slice(0, visibleCount) : filteredAndSortedJobs).map(job => (
                         <JobListItem key={job.id} job={job} />
                       ))}
+                      {isMobile && visibleCount < filteredAndSortedJobs.length && (
+                        <div className="py-6 flex justify-center">
+                          <button
+                            onClick={() => setVisibleCount(prev => prev + 10)}
+                            className="w-full rounded-lg border border-primary text-primary py-3 text-sm font-medium hover:bg-primary/5 transition-colors"
+                          >
+                            Ver más trabajos
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="rounded-lg border border-border bg-card p-12 text-center">
