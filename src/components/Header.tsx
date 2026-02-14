@@ -61,8 +61,8 @@ export const Header = ({ showShare = false, shareTitle }: HeaderProps) => {
   }, [isSearchOpen, searchQuery]);
 
   const navLinks = [
+    { to: "/trabajos", label: "Trabajos" },
     { to: "/noticias", label: "Noticias" },
-    { to: "/toolbox", label: "Toolbox" },
   ];
 
   return (
