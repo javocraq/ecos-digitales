@@ -92,7 +92,7 @@ export const LatestNewsWidget = () => {
           onClick={handleLoadMore}
           className="mt-4 w-full rounded-lg border border-border bg-card py-2.5 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
         >
-          Cargar más noticias
+          Ver más noticias
         </button>
       )}
     </div>
