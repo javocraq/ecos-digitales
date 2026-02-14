@@ -31,6 +31,17 @@ export const Footer = () => {
           </div>
         </div>
 
+        {/* Herramientas section */}
+        <div className="flex items-center justify-center gap-6 mt-4">
+          <span className="text-sm text-muted-foreground">Herramientas</span>
+          <a 
+            href="/toolbox" 
+            className="text-sm text-foreground hover:underline"
+          >
+            Ver toolbox →
+          </a>
+        </div>
+
         <div className="mt-6 border-t border-border pt-6 text-center text-sm text-muted-foreground">
           © {currentYear} Todos los derechos reservados.
         </div>
