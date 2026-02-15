@@ -125,7 +125,7 @@
   /* Container: 90% width on desktop, 100% on mobile */
   @media (min-width: 768px) {
     .container {
-      width: 90%;
+      width: 80%;
       max-width: 1400px;
     }
   }
