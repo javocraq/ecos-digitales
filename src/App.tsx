@@ -36,19 +36,17 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
-          <div className="w-full md:w-[80%] md:max-w-[1400px] mx-auto">
-            <Routes>
-              <Route path="/" element={<Jobs />} />
-              <Route path="/noticias" element={<Index />} />
-              <Route path="/buscar" element={<Search />} />
-              <Route path="/noticias/:slug" element={<Article />} />
-              <Route path="/trabajos/:slug" element={<JobDetail />} />
-              <Route path="/toolbox" element={<Toolbox />} />
-              <Route path="/toolbox/:slug" element={<ToolDetail />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
+          <Routes>
+            <Route path="/" element={<Jobs />} />
+            <Route path="/noticias" element={<Index />} />
+            <Route path="/buscar" element={<Search />} />
+            <Route path="/noticias/:slug" element={<Article />} />
+            <Route path="/trabajos/:slug" element={<JobDetail />} />
+            <Route path="/toolbox" element={<Toolbox />} />
+            <Route path="/toolbox/:slug" element={<ToolDetail />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>

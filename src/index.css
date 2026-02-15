@@ -122,8 +122,13 @@
     scroll-behavior: smooth;
   }
 
-  /* Container: 90% width on desktop, 100% on mobile */
-  /* Container width handled by wrapper in App.tsx */
+  /* Container: 80% width on desktop, 100% on mobile */
+  @media (min-width: 768px) {
+    .container {
+      width: 80%;
+      max-width: 1400px;
+    }
+  }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
