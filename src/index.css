@@ -122,6 +122,14 @@
     scroll-behavior: smooth;
   }
 
+  /* Container: 90% width on desktop, 100% on mobile */
+  @media (min-width: 768px) {
+    .container {
+      width: 90%;
+      max-width: 1400px;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-sans);
