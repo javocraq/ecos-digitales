@@ -123,12 +123,7 @@
   }
 
   /* Container: 90% width on desktop, 100% on mobile */
-  @media (min-width: 768px) {
-    .container {
-      width: 80%;
-      max-width: 1400px;
-    }
-  }
+  /* Container width handled by wrapper in App.tsx */
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
