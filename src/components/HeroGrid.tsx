@@ -66,15 +66,15 @@ const ArticleCardLarge = ({
   const formattedDate = format(new Date(article.published_date), "d MMM yyyy", {
     locale: es
   });
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 h-full">
-      <div className="relative h-full min-h-[400px] md:h-[500px] aspect-video md:aspect-auto overflow-hidden">
+  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow h-full">
+      <div className="relative h-full min-h-[400px] md:h-[500px] overflow-hidden">
         <div className="absolute inset-0">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="(max-width: 1024px) 100vw, 65vw" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
-          <h2 className="text-[1.375rem] leading-[1.3] md:text-[2.125rem] md:leading-[1.2] font-bold text-white mb-3 group-hover:underline decoration-2 underline-offset-4">
+        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
+          <h2 className="text-[1.375rem] leading-[1.3] md:text-2xl lg:text-3xl font-bold text-white mb-3 group-hover:underline decoration-2 underline-offset-4">
             {article.title}
           </h2>
         </div>
@@ -89,10 +89,10 @@ const ArticleCardSmall = ({
   article: Article;
 }) => {
   const formattedDate = formatArticleDate(article.published_date);
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border bg-card shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300">
+  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
       <div className="flex gap-4 p-3">
         {/* Thumbnail image */}
-        <div className="relative w-[80px] h-[80px] md:w-20 md:h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
+        <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105" sizes="96px" />
         </div>
         
@@ -126,7 +126,7 @@ export const HeroGrid = ({
 
   // Separate featured article and side articles
   const [featuredArticle, ...sideArticles] = articles.slice(0, 5);
-  return <section className="container px-4 md:px-0 py-6 md:py-8">
+  return <section className="container py-6 md:py-8">
       {/* Desktop & Tablet: 2 column grid (60% / 40%) */}
       <div className="hidden md:grid md:grid-cols-[60%_1fr] gap-6">
         {/* Featured article (large) */}

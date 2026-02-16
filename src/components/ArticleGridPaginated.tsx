@@ -43,9 +43,9 @@ export const ArticleGridPaginated = ({
             <Link
               key={article.id}
               to={`/noticias/${article.slug}`}
-              className="group flex gap-4 rounded-xl p-2 shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 hover:bg-secondary/50"
+              className="group flex gap-4 rounded-xl p-2 transition-colors hover:bg-secondary/50"
             >
-              <div className="relative w-[100px] h-[100px] flex-shrink-0 overflow-hidden rounded-xl bg-muted">
+              <div className="relative aspect-video w-24 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
                 <img
                   src={article.image_url}
                   alt={article.title}

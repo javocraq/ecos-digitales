@@ -35,7 +35,7 @@ const MostViewedCard = ({ article }: { article: Article }) => {
   return (
     <Link
       to={`/noticias/${article.slug}`}
-      className="group flex flex-col transition-all duration-300 hover:-translate-y-0.5"
+      className="group flex flex-col"
     >
       {/* Image */}
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted mb-3">
@@ -77,7 +77,7 @@ export const MostViewed = ({ articles, isLoading }: MostViewedProps) => {
   const displayArticles = articles.slice(0, 4);
 
   return (
-    <section className="container px-4 md:px-0 py-6 md:py-8">
+    <section className="container py-6 md:py-8">
       <SectionHeader title="Lo más visto" />
 
       {/* Grid */}
