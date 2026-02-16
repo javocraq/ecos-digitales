@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { LoadingGrid } from "@/components/LoadingGrid";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -17,13 +16,9 @@ const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Search = lazy(() => import("./pages/Search"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Page loading fallback
+// Page loading fallback - minimal blank screen for fast perceived load
 const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="container py-8">
-      <LoadingGrid />
-    </div>
-  </div>
+  <div className="min-h-screen bg-background" />
 );
 
 const queryClient = new QueryClient();
