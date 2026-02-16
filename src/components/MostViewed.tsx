@@ -62,10 +62,6 @@ const MostViewedCard = ({ article }: { article: Article }) => {
         </p>
       )}
 
-      {/* Author */}
-      <span className="text-[0.5625rem] font-medium tracking-[0.5px] uppercase text-muted-foreground mt-auto">
-        Por {article.author}
-      </span>
     </Link>
   );
 };
