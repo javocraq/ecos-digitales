@@ -85,7 +85,7 @@ const ArticleCardLarge = ({
         <div className="relative h-[420px] overflow-hidden rounded-xl">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="65vw" />
         </div>
-        <div className="pt-4 px-1">
+        <div className="pt-3 px-0">
           <h2 className="text-2xl lg:text-3xl font-bold text-foreground group-hover:text-primary transition-colors">
             {article.title}
           </h2>
