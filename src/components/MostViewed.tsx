@@ -57,7 +57,7 @@ const MostViewedCard = ({ article }: { article: Article }) => {
 
       {/* Description - hidden on mobile for compactness */}
       {article.content && (
-        <p className="hidden sm:block text-[0.9375rem] leading-[1.5] text-muted-foreground line-clamp-2 mb-2">
+        <p className="hidden sm:block text-[0.8125rem] leading-[1.5] text-muted-foreground line-clamp-2 mb-2">
           {article.content.replace(/<[^>]*>/g, "").slice(0, 150)}
         </p>
       )}
