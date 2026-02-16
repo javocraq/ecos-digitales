@@ -91,7 +91,7 @@ export const ArticleCard = ({ article, variant = "grid", priority = false }: Art
   // Grid variant - Google Blog style: horizontal card with thumbnail on right
   return (
     <Link to={`/noticias/${slug}`} className="group block h-full">
-      <article className="flex h-full items-start gap-4 rounded-xl border border-border bg-background p-5 transition-all duration-200 hover:border-primary/20 hover:shadow-card-hover">
+      <article className="flex h-full items-start gap-4 rounded-xl border border-border bg-background p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all duration-300 hover:border-primary/20 hover:shadow-card-hover hover:-translate-y-0.5">
         {/* Content on left */}
         <div className="flex flex-1 flex-col min-w-0">
           {/* Category - hidden on mobile */}
