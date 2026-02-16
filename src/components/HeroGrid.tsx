@@ -37,12 +37,12 @@ interface HeroGridProps {
 
 // Skeleton for loading state
 const HeroGridSkeleton = () => <section className="container py-6 md:py-8">
-    <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
+    <div className="grid md:grid-cols-[60%_40%] gap-6">
       {/* Main article skeleton */}
-      <Skeleton className="aspect-[16/10] rounded-xl" />
+      <Skeleton className="h-[500px] rounded-xl" />
       
       {/* Secondary articles skeleton */}
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-rows-4 gap-4">
         {[...Array(4)].map((_, i) => <div key={i} className="flex gap-4 p-4 rounded-lg border border-border bg-card opacity-0 animate-fade-in" style={{
         animationDelay: `${i * 100}ms`
       }}>
@@ -66,8 +66,8 @@ const ArticleCardLarge = ({
   const formattedDate = format(new Date(article.published_date), "d MMM yyyy", {
     locale: es
   });
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-      <div className="relative aspect-[16/10] overflow-hidden">
+  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow h-full">
+      <div className="relative h-full min-h-[400px] md:h-[500px] overflow-hidden">
         <div className="absolute inset-0">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="(max-width: 1024px) 100vw, 65vw" />
         </div>
@@ -131,13 +131,13 @@ export const HeroGrid = ({
   // Separate featured article and side articles
   const [featuredArticle, ...sideArticles] = articles.slice(0, 5);
   return <section className="container py-6 md:py-8">
-      {/* Desktop & Tablet: 2 column grid */}
-      <div className="hidden md:grid md:grid-cols-[3fr_2fr] lg:grid-cols-[2fr_1fr] gap-6">
+      {/* Desktop & Tablet: 2 column grid (60% / 40%) */}
+      <div className="hidden md:grid md:grid-cols-[60%_1fr] gap-6">
         {/* Featured article (large) */}
         <ArticleCardLarge article={featuredArticle} />
         
-        {/* Secondary articles (4 small, stacked, vertically centered) */}
-        <div className="flex flex-col justify-center gap-4">
+        {/* Secondary articles (4 small, uniform rows) */}
+        <div className="grid grid-rows-4 gap-4">
           {sideArticles.slice(0, 4).map(article => <ArticleCardSmall key={article.id} article={article} />)}
         </div>
       </div>
