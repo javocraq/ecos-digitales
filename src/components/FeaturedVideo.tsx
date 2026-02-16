@@ -51,6 +51,7 @@ export const FeaturedVideo = ({
 
   if (isLoading) {
     return (
+      <div className="bg-[#FAFAFA] dark:bg-muted/30">
       <section className="container py-4 md:py-6">
         <SectionHeader title="Último video" />
         <div className="overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8">
@@ -71,10 +72,12 @@ export const FeaturedVideo = ({
           </div>
         </div>
       </section>
+      </div>
     );
   }
 
   return (
+    <div className="bg-[#FAFAFA] dark:bg-muted/30">
     <section className="container py-4 md:py-6">
       <SectionHeader title="Último video" />
       
@@ -132,5 +135,6 @@ export const FeaturedVideo = ({
         </div>
       </a>
     </section>
+    </div>
   );
 };
