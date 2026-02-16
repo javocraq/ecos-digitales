@@ -99,7 +99,7 @@ const ArticleCardLarge = ({
     </Link>;
 };
 
-// Small secondary article card
+// Small secondary article card (mobile: horizontal, desktop: vertical like reference)
 const ArticleCardSmall = ({
   article
 }: {
@@ -107,25 +107,35 @@ const ArticleCardSmall = ({
 }) => {
   const formattedDate = formatArticleDate(article.published_date);
   return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
-      <div className="flex items-center gap-4 p-3">
-        {/* Thumbnail image */}
+      {/* Mobile: horizontal layout */}
+      <div className="md:hidden flex items-center gap-4 p-3">
         <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105" sizes="96px" />
         </div>
-        
-        {/* Content */}
         <div className="flex-1 min-w-0 flex flex-col justify-center">
-          {/* Title */}
-          <h3 className="text-sm md:text-base font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+          <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
             {article.title}
           </h3>
-          
-          {/* Date only */}
           <div className="flex items-center gap-2 text-[0.75rem] font-medium uppercase tracking-[0.5px] text-muted-foreground">
-            <span className="text-primary/80">
-              {formattedDate}
-            </span>
+            <span className="text-primary/80">{formattedDate}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Desktop: vertical layout (image on top, title + description below) */}
+      <div className="hidden md:block">
+        <div className="relative aspect-video overflow-hidden rounded-t-xl bg-muted">
+          <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" sizes="(max-width: 1024px) 50vw, 20vw" />
+        </div>
+        <div className="p-4">
+          <h3 className="text-base font-bold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+            {article.title}
+          </h3>
+          {article.content && (
+            <p className="text-[0.8125rem] leading-[1.5] text-muted-foreground line-clamp-2">
+              {article.content.replace(/<[^>]*>/g, "")}
+            </p>
+          )}
         </div>
       </div>
     </Link>;
