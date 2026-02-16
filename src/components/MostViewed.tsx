@@ -53,7 +53,7 @@ const MostViewedCard = ({ article }: { article: Article }) => {
       </h3>
 
       {/* Separator line */}
-      <div className="w-8 h-0.5 bg-primary mb-2" />
+      <div className="w-8 h-0.5 bg-foreground mb-2" />
 
       {/* Description - hidden on mobile for compactness */}
       {article.content && (
