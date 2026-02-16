@@ -93,7 +93,7 @@ export const FeaturedVideo = ({
             <YouTubeThumbnail
               videoId={videoId}
               title={title}
-              className="w-full h-full object-cover"
+            className="w-full h-full object-fill"
             />
           </div>
           <div className="p-5">
@@ -128,7 +128,7 @@ export const FeaturedVideo = ({
               <YouTubeThumbnail
                 videoId={videoId}
                 title={title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-fill"
               />
             </div>
           </div>
