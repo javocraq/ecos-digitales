@@ -109,7 +109,7 @@ const ArticleCardSmall = ({
   return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border md:border-0 bg-card md:bg-transparent shadow-sm md:shadow-none hover:shadow-md md:hover:shadow-none hover:border-primary/30 transition-all md:h-full md:flex md:flex-col">
       {/* Mobile: horizontal layout */}
       <div className="md:hidden flex items-center gap-4 p-3">
-        <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
+        <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105" sizes="96px" />
         </div>
         <div className="flex-1 min-w-0 flex flex-col justify-center">
