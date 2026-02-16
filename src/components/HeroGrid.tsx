@@ -106,7 +106,7 @@ const ArticleCardSmall = ({
   article: Article;
 }) => {
   const formattedDate = formatArticleDate(article.published_date);
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
+  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border md:border-0 bg-card md:bg-transparent shadow-sm md:shadow-none hover:shadow-md md:hover:shadow-none hover:border-primary/30 transition-all">
       {/* Mobile: horizontal layout */}
       <div className="md:hidden flex items-center gap-4 p-3">
         <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
