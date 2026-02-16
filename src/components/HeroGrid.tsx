@@ -107,7 +107,7 @@ const ArticleCardSmall = ({
 }) => {
   const formattedDate = formatArticleDate(article.published_date);
   return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
-      <div className="flex gap-4 p-3">
+      <div className="flex items-center gap-4 p-3">
         {/* Thumbnail image */}
         <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105" sizes="96px" />
