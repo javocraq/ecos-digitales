@@ -6,7 +6,7 @@ import { TagPill } from "@/components/TagPill";
 import { ArticleMeta } from "@/components/ArticleMeta";
 import { RelatedArticles } from "@/components/RelatedArticles";
 import { InlineRelatedArticles } from "@/components/InlineRelatedArticles";
-import { CrossCategoryArticles } from "@/components/CrossCategoryArticles";
+
 import { ArticleDetailSkeleton } from "@/components/ArticleDetailSkeleton";
 import { SEO } from "@/components/SEO";
 import { useArticleBySlug, useArticles } from "@/hooks/useArticles";
@@ -339,14 +339,6 @@ const Article = () => {
           {/* Related Articles - Below the article */}
           <RelatedArticles articles={relatedArticles} />
 
-          {/* Cross-category internal linking */}
-          {allArticles && (
-            <CrossCategoryArticles
-              articles={allArticles}
-              currentCategory={article.category}
-              currentSlug={article.slug}
-            />
-          )}
         </article>
       </main>
 
