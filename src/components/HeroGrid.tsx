@@ -66,7 +66,7 @@ const ArticleCardLarge = ({
   const formattedDate = format(new Date(article.published_date), "d MMM yyyy", {
     locale: es
   });
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow h-full">
+  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl md:shadow-none md:hover:shadow-none shadow-lg hover:shadow-xl transition-shadow h-full">
       {/* Mobile: overlay text on image */}
       <div className="md:hidden relative h-full min-h-[300px] overflow-hidden">
         <div className="absolute inset-0">
