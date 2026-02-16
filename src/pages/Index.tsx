@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { HeroGrid } from "@/components/HeroGrid";
+import { MostViewed } from "@/components/MostViewed";
 import { FeaturedVideo } from "@/components/FeaturedVideo";
 import { ArticleGridPaginated } from "@/components/ArticleGridPaginated";
 import { LoadingGrid } from "@/components/LoadingGrid";
@@ -92,7 +93,10 @@ const Index = () => {
               </div>
             )}
 
-            {/* Featured Video Section - Solo se muestra si hay datos del API */}
+            {/* Most Viewed Section */}
+            <MostViewed articles={filteredArticles.slice(0, 8)} isLoading={isLoading} />
+
+            {/* Featured Video Section */}
             {(latestVideo || isVideoLoading) && (
               <FeaturedVideo
                 videoId={latestVideo?.videoId || ""}
