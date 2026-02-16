@@ -67,7 +67,7 @@ const ArticleCardLarge = ({
     locale: es
   });
   return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow h-full">
-      <div className="relative h-full min-h-[400px] md:h-[500px] overflow-hidden">
+      <div className="relative h-full min-h-[300px] md:h-[500px] overflow-hidden">
         <div className="absolute inset-0">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="(max-width: 1024px) 100vw, 65vw" />
         </div>
