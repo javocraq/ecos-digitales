@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SectionHeader } from "./SectionHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface FeaturedVideoProps {
@@ -51,9 +52,7 @@ export const FeaturedVideo = ({
   if (isLoading) {
     return (
       <section className="container py-4 md:py-6">
-        <h2 className="mb-4 text-lg font-bold text-foreground md:text-xl">
-          Último video
-        </h2>
+        <SectionHeader title="Último video" />
         <div className="overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8">
           <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="flex-1 space-y-4">
@@ -77,9 +76,7 @@ export const FeaturedVideo = ({
 
   return (
     <section className="container py-4 md:py-6">
-      <h2 className="mb-4 text-lg font-bold text-foreground md:text-xl">
-        Último video
-      </h2>
+      <SectionHeader title="Último video" />
       
       <a
         href={youtubeUrl}

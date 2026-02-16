@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { HeroGrid } from "@/components/HeroGrid";
 import { MostViewed } from "@/components/MostViewed";
 import { FeaturedVideo } from "@/components/FeaturedVideo";
+import { SectionHeader } from "@/components/SectionHeader";
 import { ArticleGridPaginated } from "@/components/ArticleGridPaginated";
 import { LoadingGrid } from "@/components/LoadingGrid";
 import { ErrorState } from "@/components/ErrorState";
@@ -109,9 +110,7 @@ const Index = () => {
             {/* Paginated Feed */}
             {feedArticles.length > 0 && (
               <section className="container py-6">
-                <h2 className="mb-6 text-xl font-semibold text-foreground">
-                  Últimas noticias
-                </h2>
+                <SectionHeader title="Últimas noticias" />
                 <ArticleGridPaginated articles={feedArticles} />
               </section>
             )}

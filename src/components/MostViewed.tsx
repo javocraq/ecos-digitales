@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "./OptimizedImage";
+import { SectionHeader } from "./SectionHeader";
 import { Skeleton } from "./ui/skeleton";
 import type { Article } from "@/hooks/useArticles";
 
@@ -77,13 +78,7 @@ export const MostViewed = ({ articles, isLoading }: MostViewedProps) => {
 
   return (
     <section className="container py-6 md:py-8">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-foreground mb-3">
-          Lo más visto
-        </h2>
-        <div className="h-px w-full bg-border" />
-      </div>
+      <SectionHeader title="Lo más visto" />
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
