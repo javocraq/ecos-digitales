@@ -155,13 +155,6 @@ export const HeroGrid = ({
         </div>
       </div>
 
-      {/* Desktop: remaining 2 articles below as small cards */}
-      {sideArticles.length > 2 && (
-        <div className="hidden md:grid md:grid-cols-2 gap-4 mt-4">
-          {sideArticles.slice(2, 4).map(article => <ArticleCardSmall key={article.id} article={article} />)}
-        </div>
-      )}
-
       {/* Mobile: Stack layout */}
       <div className="md:hidden flex flex-col gap-6">
         {/* Featured article */}
