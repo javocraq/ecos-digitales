@@ -134,9 +134,6 @@ const ArticleCardSmall = ({
           <h3 className="text-lg font-bold text-white line-clamp-3 mb-2">
             {article.title}
           </h3>
-          <span className="text-[0.75rem] text-white/60">
-            {formattedDate}
-          </span>
         </div>
       </div>
     </Link>;
