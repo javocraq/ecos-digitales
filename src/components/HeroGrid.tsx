@@ -66,18 +66,16 @@ const ArticleCardLarge = ({
   const formattedDate = format(new Date(article.published_date), "d MMM yyyy", {
     locale: es
   });
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow h-full">
-      <div className="relative h-full min-h-[300px] md:h-[500px] overflow-hidden">
+  return <Link to={`/noticias/${article.slug}`} className="group block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow h-full flex flex-col">
+      <div className="relative min-h-[250px] md:min-h-[380px] overflow-hidden flex-1">
         <div className="absolute inset-0">
-          <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="(max-width: 1024px) 100vw, 65vw" />
+          <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover rounded-t-xl transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="(max-width: 1024px) 100vw, 65vw" />
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
-          <h2 className="text-[1.25rem] leading-[1.3] md:text-2xl lg:text-3xl font-bold text-white mb-3">
-            {article.title}
-          </h2>
-        </div>
+      </div>
+      <div className="p-4 md:p-6 bg-card">
+        <h2 className="text-[1.25rem] leading-[1.3] md:text-2xl lg:text-3xl font-bold text-foreground group-hover:text-primary transition-colors">
+          {article.title}
+        </h2>
       </div>
     </Link>;
 };
