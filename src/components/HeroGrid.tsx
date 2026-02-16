@@ -71,7 +71,7 @@ const ArticleCardLarge = ({
         <div className="absolute inset-0">
           <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" priority sizes="(max-width: 1024px) 100vw, 65vw" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         
         <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
           <h2 className="text-[1.25rem] leading-[1.3] md:text-2xl lg:text-3xl font-bold text-white mb-3 group-hover:underline decoration-2 underline-offset-4">
