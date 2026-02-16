@@ -122,20 +122,21 @@ const ArticleCardSmall = ({
         </div>
       </div>
 
-      {/* Desktop: vertical layout (image on top, title + description below) */}
-      <div className="hidden md:block">
-        <div className="relative aspect-video overflow-hidden rounded-t-xl bg-muted">
-          <OptimizedImage src={article.image_url || ""} alt={article.title} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" sizes="(max-width: 1024px) 50vw, 20vw" />
-        </div>
-        <div className="p-4">
-          <h3 className="text-base font-bold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+      {/* Desktop: overlay layout like TechCrunch */}
+      <div className="hidden md:block relative h-full min-h-[280px] overflow-hidden rounded-xl">
+        <OptimizedImage src={article.image_url || ""} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" sizes="(max-width: 1024px) 50vw, 20vw" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-5">
+          <div className="w-8 h-0.5 bg-primary mb-2" />
+          <span className="text-[0.6875rem] font-medium uppercase tracking-[0.5px] text-white/70 mb-1 block">
+            {article.category}
+          </span>
+          <h3 className="text-lg font-bold text-white line-clamp-3 mb-2">
             {article.title}
           </h3>
-          {article.content && (
-            <p className="text-[0.8125rem] leading-[1.5] text-muted-foreground line-clamp-2">
-              {article.content.replace(/<[^>]*>/g, "")}
-            </p>
-          )}
+          <span className="text-[0.75rem] text-white/60">
+            {formattedDate}
+          </span>
         </div>
       </div>
     </Link>;
