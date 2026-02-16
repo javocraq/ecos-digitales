@@ -106,7 +106,7 @@ const ArticleCardSmall = ({
   article: Article;
 }) => {
   const formattedDate = formatArticleDate(article.published_date);
-  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border md:border-0 bg-card md:bg-transparent shadow-sm md:shadow-none hover:shadow-md md:hover:shadow-none hover:border-primary/30 transition-all">
+  return <Link to={`/noticias/${article.slug}`} className="group relative block overflow-hidden rounded-xl border border-border md:border-0 bg-card md:bg-transparent shadow-sm md:shadow-none hover:shadow-md md:hover:shadow-none hover:border-primary/30 transition-all md:h-full md:flex md:flex-col">
       {/* Mobile: horizontal layout */}
       <div className="md:hidden flex items-center gap-4 p-3">
         <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-muted">
@@ -123,11 +123,11 @@ const ArticleCardSmall = ({
       </div>
 
       {/* Desktop: overlay layout like TechCrunch */}
-      <div className="hidden md:block relative h-full min-h-[280px] overflow-hidden rounded-xl">
+      <div className="hidden md:block relative flex-1 overflow-hidden rounded-xl">
         <OptimizedImage src={article.image_url || ""} alt={article.title} className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110" sizes="(max-width: 1024px) 50vw, 20vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-5">
-          <div className="w-8 h-0.5 bg-primary mb-2" />
+          <div className="w-8 h-0.5 bg-white mb-2" />
           <span className="text-[0.6875rem] font-medium uppercase tracking-[0.5px] text-white/70 mb-1 block">
             {article.category}
           </span>
