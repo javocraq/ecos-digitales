@@ -41,9 +41,14 @@ const Index = () => {
     return result;
   }, [articles, selectedCategory]);
 
+  // Hero uses 5 articles (1 featured + 4 side on mobile, 2 side on desktop)
   const heroArticles = filteredArticles.slice(0, 5);
-  const mostViewedArticles = filteredArticles.slice(6, 10);
-  const feedArticles = filteredArticles.slice(10);
+  // Featured headlines: next 3 articles after hero
+  const headlineArticles = filteredArticles.slice(5, 8);
+  // Most viewed: next 4
+  const mostViewedArticles = filteredArticles.slice(8, 12);
+  // Feed: everything else
+  const feedArticles = filteredArticles.slice(12);
 
   return (
     <>
@@ -99,7 +104,7 @@ const Index = () => {
             )}
 
             {/* Featured Headlines Banner */}
-            <FeaturedHeadlines articles={filteredArticles.slice(3, 6)} />
+            <FeaturedHeadlines articles={headlineArticles} />
 
             {/* Most Viewed Section */}
             <MostViewed articles={mostViewedArticles} isLoading={isLoading} />

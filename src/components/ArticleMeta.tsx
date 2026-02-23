@@ -29,8 +29,14 @@ export const ArticleMeta = ({
     return (
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
+          {author && (
+            <>
+              <span className="text-sm font-medium text-foreground">{author}</span>
+              <span className="text-muted-foreground/40">·</span>
+            </>
+          )}
           <span className="text-sm">{formattedDate}</span>
-          <span className="text-muted-foreground/40">•</span>
+          <span className="text-muted-foreground/40">·</span>
           <div className="flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
             <span className="text-sm">{readingTime} min de lectura</span>

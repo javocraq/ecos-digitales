@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SITE_URL = "https://nucleotech.news";
+const SITE_URL = "https://blog.nucleo.la";
 const ARTICLES_API = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/articles";
 const JOBS_API = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/jobs";
 const TOOLS_API = "https://platinum-n8n.qj9jfr.easypanel.host/webhook/v2/tools";

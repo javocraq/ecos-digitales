@@ -87,7 +87,7 @@ const Toolbox = () => {
       <SEO
         title="Toolbox"
         description="Herramientas que uso y recomiendo para automatización, IA y desarrollo. Descubre las mejores apps y servicios para potenciar tu productividad."
-        url="https://nucleotech.news/toolbox"
+        url="https://blog.nucleo.la/toolbox"
         type="website"
         jsonLd={{
           "@context": "https://schema.org",
@@ -95,7 +95,7 @@ const Toolbox = () => {
           name: "Toolbox | Nucleo",
           description:
             "Herramientas recomendadas para automatización, IA y desarrollo.",
-          url: "https://nucleotech.news/toolbox",
+          url: "https://blog.nucleo.la/toolbox",
           publisher: { "@type": "Organization", name: "Nucleo" },
         }}
       />

@@ -34,3 +34,4 @@ supabase/.temp/
 imagenes-migrar/
 descargar-imagenes.sh
 logo-og.jpg
+*.zip

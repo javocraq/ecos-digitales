@@ -206,14 +206,14 @@ const ToolDetail = () => {
         title={`${tool.product_name} - Análisis y Guía Completa`}
         description={seoDescription}
         image={tool.image_url || undefined}
-        url={`https://nucleotech.news/toolbox/${tool.slug}`}
+        url={`https://blog.nucleo.la/toolbox/${tool.slug}`}
         type="article"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Review",
           name: `${tool.product_name} - Análisis y Guía Completa`,
           description: seoDescription,
-          url: `https://nucleotech.news/toolbox/${tool.slug}`,
+          url: `https://blog.nucleo.la/toolbox/${tool.slug}`,
           publisher: { "@type": "Organization", name: "Nucleo" },
           itemReviewed: {
             "@type": "SoftwareApplication",
