@@ -3,6 +3,7 @@ import { OptimizedImage } from "./OptimizedImage";
 import { SectionHeader } from "./SectionHeader";
 import { Skeleton } from "./ui/skeleton";
 import type { ArticleListing } from "@/hooks/useArticles";
+import { getExcerpt } from "@/lib/getExcerpt";
 
 interface MostViewedProps {
   articles: ArticleListing[];
@@ -56,9 +57,9 @@ const MostViewedCard = ({ article }: { article: ArticleListing }) => {
       <div className="w-8 h-0.5 bg-foreground mb-2" />
 
       {/* Description - hidden on mobile for compactness */}
-      {article.excerpt && (
+      {getExcerpt(article) && (
         <p className="hidden sm:block text-[0.8125rem] leading-[1.5] text-muted-foreground line-clamp-2 mb-2">
-          {article.excerpt.replace(/<[^>]*>/g, "").slice(0, 150)}
+          {getExcerpt(article).replace(/<[^>]*>/g, "").slice(0, 150)}
         </p>
       )}
 

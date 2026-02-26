@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { LoadingGrid } from "@/components/LoadingGrid";
 import { SEO } from "@/components/SEO";
 import { useArticles, type ArticleListing } from "@/hooks/useArticles";
+import { getExcerpt } from "@/lib/getExcerpt";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Search as SearchIcon } from "lucide-react";
 
@@ -76,7 +77,7 @@ const Search = () => {
     id: article.id,
     title: article.title,
     category: article.category_name,
-    description: article.excerpt || "",
+    description: getExcerpt(article),
     image: article.featured_image_url,
     date: article.published_at,
     slug: article.slug,

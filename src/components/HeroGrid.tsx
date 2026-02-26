@@ -4,6 +4,7 @@ import { es } from "date-fns/locale";
 import { OptimizedImage } from "./OptimizedImage";
 import { Skeleton } from "./ui/skeleton";
 import type { ArticleListing } from "@/hooks/useArticles";
+import { getExcerpt } from "@/lib/getExcerpt";
 
 // Helper to format date with relative time for recent articles
 const formatArticleDate = (dateString: string) => {
@@ -89,9 +90,9 @@ const ArticleCardLarge = ({
           <h2 className="text-2xl lg:text-3xl font-bold text-foreground group-hover:text-primary transition-colors">
             {article.title}
           </h2>
-          {article.excerpt && (
+          {getExcerpt(article) && (
             <p className="mt-2 text-[0.9375rem] leading-[1.5] text-muted-foreground line-clamp-2">
-              {article.excerpt.replace(/<[^>]*>/g, "")}
+              {getExcerpt(article).replace(/<[^>]*>/g, "")}
             </p>
           )}
         </div>

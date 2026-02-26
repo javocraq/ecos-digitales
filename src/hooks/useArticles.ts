@@ -8,6 +8,7 @@ export interface ArticleListing {
   slug: string;
   title: string;
   excerpt: string | null;
+  content: string | null;
   featured_image_url: string | null;
   featured_image_alt: string | null;
   published_at: string;
@@ -38,7 +39,7 @@ export interface Article extends ArticleListing {
 
 // Only request what listings need — no content, no heavy fields
 const LISTING_SELECT = `
-  id, slug, title, excerpt,
+  id, slug, title, excerpt, content,
   featured_image_url, featured_image_alt,
   published_at, reading_time_minutes,
   is_pinned, pinned_order,
@@ -63,6 +64,7 @@ interface ListingRow {
   slug: string;
   title: string;
   excerpt: string | null;
+  content: string | null;
   featured_image_url: string | null;
   featured_image_alt: string | null;
   published_at: string;
@@ -96,6 +98,7 @@ function mapListingRow(row: ListingRow): ArticleListing {
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt,
+    content: row.content,
     featured_image_url: row.featured_image_url,
     featured_image_alt: row.featured_image_alt,
     published_at: row.published_at,

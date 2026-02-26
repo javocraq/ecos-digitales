@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ADMIN_BASE_PATH } from "@/config/admin";
 import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { DateTimePicker } from "@/components/admin/DateTimePicker";
 
 interface Category {
   id: string;
@@ -58,11 +59,30 @@ function estimateReadingTime(html: string): number {
   return Math.max(1, Math.round(words / 200));
 }
 
-// Convert ISO string to datetime-local input value (YYYY-MM-DDTHH:mm)
-function toDatetimeLocal(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+// Convert ISO string to Peru time in datetime-local format (YYYY-MM-DDTHH:mm)
+function toPeruDatetimeLocal(iso: string): string {
+  return new Date(iso)
+    .toLocaleString("sv-SE", { timeZone: "America/Lima" })
+    .replace(" ", "T")
+    .slice(0, 16);
+}
+
+// Convert Peru datetime-local value to UTC ISO string
+// Peru is always UTC-5 (no DST)
+function peruToUTC(datetimeLocal: string): string {
+  const [datePart, timePart] = datetimeLocal.split("T");
+  const [y, m, d] = datePart.split("-").map(Number);
+  const [h, min] = timePart.split(":").map(Number);
+  const utc = new Date(Date.UTC(y, m - 1, d, h + 5, min));
+  return utc.toISOString();
+}
+
+// Get current Peru time as datetime-local string
+function nowInPeru(): string {
+  return new Date()
+    .toLocaleString("sv-SE", { timeZone: "America/Lima" })
+    .replace(" ", "T")
+    .slice(0, 16);
 }
 
 const MIME_MAP: Record<string, string> = {
@@ -212,7 +232,7 @@ const Editor = () => {
         setTitle(data.title || "");
         setAuthorId(data.author_id || "");
         setCategoryId(data.category_id || "");
-        setPublishedAt(data.published_at ? toDatetimeLocal(data.published_at) : "");
+        setPublishedAt(data.published_at ? toPeruDatetimeLocal(data.published_at) : "");
         setImageUrl(data.featured_image_url || "");
         setContent(data.content || "");
         setOriginalSource(data.source);
@@ -345,12 +365,12 @@ const Editor = () => {
 
       if (action === "publish") {
         finalPublishedAt = publishedAt
-          ? new Date(publishedAt).toISOString()
-          : now;
+          ? peruToUTC(publishedAt)
+          : peruToUTC(nowInPeru());
         finalStatus = "published";
       } else {
         if (publishedAt) {
-          finalPublishedAt = new Date(publishedAt).toISOString();
+          finalPublishedAt = peruToUTC(publishedAt);
           finalStatus = "published";
         } else {
           finalPublishedAt = null;
@@ -644,11 +664,10 @@ const Editor = () => {
               <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
                 Fecha
               </label>
-              <input
-                type="datetime-local"
+              <DateTimePicker
                 value={publishedAt}
-                onChange={(e) => setPublishedAt(e.target.value)}
-                className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 text-sm text-neutral-800 focus:bg-white focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-900/5 transition-all duration-200"
+                onChange={setPublishedAt}
+                error={!!errors.date}
               />
               <p className="text-[0.6875rem] text-neutral-400 mt-1.5">
                 Sin fecha = borrador
@@ -736,7 +755,7 @@ const Editor = () => {
 
           {/* Content editor */}
           <div>
-            <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-1">
+            <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
               Contenido
             </label>
             <RichTextEditor content={content} onUpdate={setContent} />

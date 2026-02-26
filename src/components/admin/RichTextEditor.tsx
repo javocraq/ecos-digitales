@@ -130,7 +130,7 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       />
 
       {/* Toolbar */}
-      <div className="sticky top-16 z-30 flex flex-wrap items-center gap-0.5 border-b border-neutral-100 bg-white px-3 py-2">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-neutral-200 bg-neutral-50 px-3 py-2">
         <ToolbarButton
           active={editor.isActive("bold")}
           onClick={() => editor.chain().focus().toggleBold().run()}
