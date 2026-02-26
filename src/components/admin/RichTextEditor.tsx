@@ -5,7 +5,11 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
-import { useCallback, useRef, useState } from "react";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bold,
   Italic,
@@ -19,6 +23,10 @@ import {
   Minus,
   Unlink,
   Loader2,
+  Table2,
+  Code,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -32,7 +40,11 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkPopup, setShowLinkPopup] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [showHtml, setShowHtml] = useState(false);
+  const [htmlSource, setHtmlSource] = useState("");
+  const [showTableMenu, setShowTableMenu] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const tableMenuRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -53,6 +65,13 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
+      Table.configure({
+        resizable: false,
+        HTMLAttributes: { class: "tiptap-table" },
+      }),
+      TableRow,
+      TableCell,
+      TableHeader,
     ],
     content,
     onUpdate: ({ editor: e }) => {
@@ -65,6 +84,19 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       },
     },
   });
+
+  // Close table menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tableMenuRef.current && !tableMenuRef.current.contains(e.target as Node)) {
+        setShowTableMenu(false);
+      }
+    };
+    if (showTableMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showTableMenu]);
 
   const handleLinkSubmit = useCallback(() => {
     if (!editor || !linkUrl.trim()) return;
@@ -112,7 +144,23 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
     [editor]
   );
 
+  const handleToggleHtml = useCallback(() => {
+    if (!editor) return;
+    if (!showHtml) {
+      // Switching to HTML mode
+      setHtmlSource(editor.getHTML());
+      setShowHtml(true);
+    } else {
+      // Switching back to visual mode
+      editor.commands.setContent(htmlSource);
+      onUpdate(htmlSource);
+      setShowHtml(false);
+    }
+  }, [editor, showHtml, htmlSource, onUpdate]);
+
   if (!editor) return null;
+
+  const isInTable = editor.isActive("table");
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white overflow-hidden">
@@ -265,10 +313,113 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
         >
           <Minus className="h-4 w-4" />
         </ToolbarButton>
+
+        {/* Table */}
+        <div className="relative" ref={tableMenuRef}>
+          <ToolbarButton
+            active={isInTable}
+            onClick={() => {
+              if (isInTable) {
+                setShowTableMenu(!showTableMenu);
+              } else {
+                editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+              }
+            }}
+            title={isInTable ? "Opciones de tabla" : "Insertar tabla 3x3"}
+          >
+            <Table2 className="h-4 w-4" />
+          </ToolbarButton>
+
+          {showTableMenu && isInTable && (
+            <div className="absolute left-0 top-full mt-2 z-50 w-48 rounded-xl border border-neutral-200 bg-white py-1 shadow-lg">
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().addRowBefore().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Plus className="h-3.5 w-3.5" />}
+                label="Fila arriba"
+              />
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().addRowAfter().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Plus className="h-3.5 w-3.5" />}
+                label="Fila abajo"
+              />
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().addColumnBefore().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Plus className="h-3.5 w-3.5" />}
+                label="Columna a la izquierda"
+              />
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().addColumnAfter().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Plus className="h-3.5 w-3.5" />}
+                label="Columna a la derecha"
+              />
+              <div className="my-1 h-px bg-neutral-200" />
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().deleteRow().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Trash2 className="h-3.5 w-3.5" />}
+                label="Eliminar fila"
+                destructive
+              />
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().deleteColumn().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Trash2 className="h-3.5 w-3.5" />}
+                label="Eliminar columna"
+                destructive
+              />
+              <TableMenuItem
+                onClick={() => {
+                  editor.chain().focus().deleteTable().run();
+                  setShowTableMenu(false);
+                }}
+                icon={<Trash2 className="h-3.5 w-3.5" />}
+                label="Eliminar tabla"
+                destructive
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Spacer to push HTML toggle to the right */}
+        <div className="flex-1" />
+
+        {/* HTML Toggle */}
+        <ToolbarButton
+          active={showHtml}
+          onClick={handleToggleHtml}
+          title={showHtml ? "Volver a visual" : "Editar HTML"}
+        >
+          <Code className="h-4 w-4" />
+        </ToolbarButton>
       </div>
 
       {/* Editor area */}
-      <EditorContent editor={editor} />
+      {showHtml ? (
+        <textarea
+          value={htmlSource}
+          onChange={(e) => setHtmlSource(e.target.value)}
+          className="w-full min-h-[400px] px-5 py-3 font-mono text-sm bg-neutral-900 text-green-400 focus:outline-none resize-y"
+          spellCheck={false}
+        />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
     </div>
   );
 };
@@ -300,4 +451,29 @@ const ToolbarButton = ({
 
 const ToolbarSeparator = () => (
   <div className="mx-1.5 h-4 w-px bg-neutral-200" />
+);
+
+const TableMenuItem = ({
+  onClick,
+  icon,
+  label,
+  destructive = false,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  destructive?: boolean;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors ${
+      destructive
+        ? "text-red-500 hover:bg-red-50"
+        : "text-neutral-700 hover:bg-neutral-100"
+    }`}
+  >
+    {icon}
+    {label}
+  </button>
 );

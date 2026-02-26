@@ -62,9 +62,9 @@ const Dashboard = () => {
     if (filter === "published" || filter === "draft") {
       query = query.eq("status", filter);
     } else if (filter === "automatic") {
-      query = query.or("source.eq.automatic,source.is.null");
+      query = query.eq("source", "AI");
     } else if (filter === "manual") {
-      query = query.eq("source", "manual");
+      query = query.eq("source", "Human");
     }
 
     if (searchQuery.trim()) {
@@ -197,8 +197,8 @@ const Dashboard = () => {
             <option value="all">Todos</option>
             <option value="published">Publicados</option>
             <option value="draft">Borradores</option>
-            <option value="automatic">Automáticos</option>
-            <option value="manual">Manuales</option>
+            <option value="automatic">AI</option>
+            <option value="manual">Human</option>
           </select>
           <Link
             to={`${ADMIN_BASE_PATH}/editor`}
@@ -495,16 +495,16 @@ const SortableHeader = ({
 };
 
 const SourceBadge = ({ source }: { source: string | null }) => {
-  const isManual = source === "manual";
+  const isHuman = source === "Human";
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-        isManual
+        isHuman
           ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
           : "bg-muted text-muted-foreground"
       }`}
     >
-      {isManual ? "Manual" : "Auto"}
+      {isHuman ? "Human" : "AI"}
     </span>
   );
 };

@@ -43,8 +43,8 @@ const LISTING_SELECT = `
   featured_image_url, featured_image_alt,
   published_at, reading_time_minutes,
   is_pinned, pinned_order,
-  authors ( name ),
-  categories ( name )
+  authors!left ( name ),
+  categories!left ( name )
 `;
 
 const ARTICLE_SELECT = `
@@ -55,8 +55,8 @@ const ARTICLE_SELECT = `
   is_featured, is_trending, is_pinned, pinned_order,
   article_tags,
   meta_title, meta_description, og_image_url,
-  authors ( name ),
-  categories ( name )
+  authors!left ( name ),
+  categories!left ( name )
 `;
 
 interface ListingRow {

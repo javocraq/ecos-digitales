@@ -41,14 +41,14 @@ const Index = () => {
     return result;
   }, [articles, selectedCategory]);
 
-  // Hero uses 5 articles (1 featured + 4 side on mobile, 2 side on desktop)
-  const heroArticles = filteredArticles.slice(0, 5);
+  // Hero: 1 featured + 2 side (3 articles, matches desktop layout)
+  const heroArticles = filteredArticles.slice(0, 3);
   // Featured headlines: next 3 articles after hero
-  const headlineArticles = filteredArticles.slice(5, 8);
+  const headlineArticles = filteredArticles.slice(3, 6);
   // Most viewed: next 4
-  const mostViewedArticles = filteredArticles.slice(8, 12);
+  const mostViewedArticles = filteredArticles.slice(6, 10);
   // Feed: everything else
-  const feedArticles = filteredArticles.slice(12);
+  const feedArticles = filteredArticles.slice(10);
 
   return (
     <>
@@ -91,7 +91,7 @@ const Index = () => {
           </section>
         ) : (
           <>
-            {/* Hero Grid - 5 main articles */}
+            {/* Hero Grid - 3 main articles (1 featured + 2 side) */}
             {heroArticles.length > 0 ? (
               <HeroGrid articles={heroArticles} />
             ) : (

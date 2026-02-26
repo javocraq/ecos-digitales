@@ -151,13 +151,13 @@ export const HeroGrid = ({
   }
 
   // Separate featured article and side articles
-  const [featuredArticle, ...sideArticles] = articles.slice(0, 5);
+  const [featuredArticle, ...sideArticles] = articles;
   return <section className="container py-6 md:py-8">
       {/* Desktop & Tablet: 2 column grid (60% / 40%) */}
       <div className="hidden md:grid md:grid-cols-[60%_1fr] gap-6">
         {/* Featured article (large) */}
         <ArticleCardLarge article={featuredArticle} />
-        
+
         {/* Secondary articles (2 side articles) */}
         <div className="flex flex-col justify-center gap-4">
           {sideArticles.slice(0, 2).map(article => <ArticleCardSmall key={article.id} article={article} />)}
@@ -168,7 +168,7 @@ export const HeroGrid = ({
       <div className="md:hidden flex flex-col gap-6">
         {/* Featured article */}
         <ArticleCardLarge article={featuredArticle} />
-        
+
         {/* Secondary articles */}
         <div className="flex flex-col gap-[24px]">
           {sideArticles.slice(0, 4).map(article => <ArticleCardSmall key={article.id} article={article} />)}

@@ -399,13 +399,13 @@ const Editor = () => {
           .from("articles")
           .update({
             ...baseData,
-            source: originalSource || "manual",
+            source: originalSource || "Human",
           })
           .eq("id", id));
       } else {
         ({ error } = await supabase.from("articles").insert({
           ...baseData,
-          source: "manual",
+          source: "Human",
           created_at: now,
         }));
       }
@@ -434,7 +434,7 @@ const Editor = () => {
     );
   }
 
-  const isAutomatic = originalSource === "automatic";
+  const isAutomatic = originalSource === "AI";
   const isPublished = articleStatus === "published";
 
   return (

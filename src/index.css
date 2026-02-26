@@ -23,6 +23,10 @@
 .tiptap code { background: hsl(var(--muted)); padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.875em; }
 .tiptap pre { background: hsl(var(--muted)); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; }
 .tiptap pre code { background: none; padding: 0; }
+.tiptap table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+.tiptap th, .tiptap td { border: 1px solid hsl(var(--border)); padding: 8px 12px; min-width: 80px; }
+.tiptap th { background: hsl(var(--muted)); font-weight: 600; }
+.tiptap .selectedCell { background: hsl(var(--primary) / 0.08); }
 
 /* News Portal Design System - Editorial Modern */
 
@@ -160,17 +164,26 @@
   /* Article content typography */
   .article-content {
     font-family: var(--font-serif);
-    @apply text-base leading-relaxed;
+    font-size: 13px;
+    @apply leading-relaxed;
+  }
+
+  @media (min-width: 768px) {
+    .article-content {
+      font-size: 12px;
+    }
   }
 
   .article-content h2 {
     font-family: var(--font-sans);
-    @apply text-2xl font-semibold mt-10 mb-4 text-foreground;
+    font-size: 22px;
+    @apply font-semibold mt-10 mb-4 text-foreground;
   }
 
   .article-content h3 {
     font-family: var(--font-sans);
-    @apply text-xl font-semibold mt-8 mb-3 text-foreground;
+    font-size: 18px;
+    @apply font-semibold mt-8 mb-3 text-foreground;
   }
 
   .article-content p {
@@ -214,6 +227,30 @@
 
   .article-content img {
     @apply rounded-lg my-8 w-full;
+  }
+
+  .article-content .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+  }
+
+  .article-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5rem 0;
+  }
+
+  .article-content th,
+  .article-content td {
+    border: 1px solid hsl(var(--border));
+    padding: 10px 14px;
+  }
+
+  .article-content th {
+    background: hsl(var(--muted));
+    font-weight: 600;
+    text-align: left;
   }
 
   .article-content code {
