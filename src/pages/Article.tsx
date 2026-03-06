@@ -1,4 +1,5 @@
 import { useParams, Navigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import DOMPurify from "dompurify";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -33,6 +34,41 @@ const Article = () => {
         .slice(0, 9)
     : [];
 
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Load Twitter widgets.js and render tweet embeds after DOM paint
+  useEffect(() => {
+    if (!contentRef.current) return;
+    const tweetBlocks = contentRef.current.querySelectorAll("blockquote.twitter-tweet");
+    if (tweetBlocks.length === 0) return;
+
+    const container = contentRef.current;
+
+    // Script already loaded and ready — just re-render embeds (SPA navigation)
+    const twttr = (window as any).twttr;
+    if (twttr?.widgets) {
+      twttr.widgets.load(container);
+      return;
+    }
+
+    // Script tag exists but hasn't finished loading yet — wait for it
+    const existingScript = document.querySelector(
+      'script[src="https://platform.twitter.com/widgets.js"]'
+    ) as HTMLScriptElement | null;
+    if (existingScript) {
+      const onLoad = () => (window as any).twttr?.widgets?.load(container);
+      existingScript.addEventListener("load", onLoad);
+      return () => existingScript.removeEventListener("load", onLoad);
+    }
+
+    // First time — inject the script
+    const script = document.createElement("script");
+    script.src = "https://platform.twitter.com/widgets.js";
+    script.async = true;
+    script.charset = "utf-8";
+    document.body.appendChild(script);
+  }, [article?.content]);
+
   if (isArticleLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -53,7 +89,8 @@ const Article = () => {
   const renderContent = (htmlContent: string) => {
     const sanitized = DOMPurify.sanitize(htmlContent, {
       ADD_TAGS: ["iframe"],
-      ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "src", "width", "height"],
+      ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "src", "width", "height", "class", "data-lang", "data-theme", "data-dnt"],
+      ALLOW_DATA_ATTR: true,
     });
 
     const blockRegex = /(<(?:p|h[1-6]|blockquote|ul|ol|pre|hr|div|table|figure|img|iframe)[^>]*>[\s\S]*?<\/(?:p|h[1-6]|blockquote|ul|ol|pre|div|table|figure|iframe)>|<(?:hr|img|iframe)[^>]*\/?>)/gi;
@@ -165,7 +202,7 @@ const Article = () => {
               </div>
             )}
 
-            <div className="article-content prose prose-lg max-w-none dark:prose-invert">
+            <div ref={contentRef} className="article-content prose prose-lg max-w-none dark:prose-invert">
               {renderContent(article.content)}
             </div>
 

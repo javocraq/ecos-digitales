@@ -19,6 +19,7 @@
 .tiptap hr { border-color: hsl(var(--border)); margin: 1.5rem 0; }
 .tiptap img { border-radius: 0.5rem; max-width: 100%; margin: 1rem 0; }
 .tiptap blockquote { border-left: 3px solid hsl(var(--border)); padding-left: 1rem; margin: 1rem 0; color: hsl(var(--muted-foreground)); font-style: italic; }
+.tiptap blockquote.twitter-tweet { border-left: 3px solid #1da1f2; background: hsl(var(--muted)); padding: 1rem; border-radius: 0.5rem; font-style: normal; font-size: 0.875rem; color: hsl(var(--muted-foreground)); }
 .tiptap a { color: hsl(var(--primary)); text-decoration: underline; }
 .tiptap code { background: hsl(var(--muted)); padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.875em; }
 .tiptap pre { background: hsl(var(--muted)); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; }
@@ -164,13 +165,17 @@
   /* Article content typography */
   .article-content {
     font-family: var(--font-serif);
-    font-size: 13px;
+    overflow-wrap: break-word;
     @apply leading-relaxed;
   }
 
+  .article-content.prose-lg {
+    font-size: 1.025rem;
+  }
+
   @media (min-width: 768px) {
-    .article-content {
-      font-size: 12px;
+    .article-content.prose-lg {
+      font-size: 1.125rem;
     }
   }
 
@@ -215,6 +220,21 @@
 
   .article-content blockquote {
     @apply border-l-4 border-primary pl-6 italic my-8 text-muted-foreground;
+  }
+
+  .article-content blockquote.twitter-tweet {
+    border-left: none;
+    padding-left: 0;
+    font-style: normal;
+    @apply my-8 flex justify-center;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .article-content .twitter-tweet-rendered,
+  .article-content twitter-widget {
+    max-width: 100% !important;
+    width: 100% !important;
   }
 
   .article-content a {

@@ -27,6 +27,7 @@ import {
   Code,
   Plus,
   Trash2,
+  Twitter,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -36,6 +37,16 @@ interface RichTextEditorProps {
   onUpdate: (html: string) => void;
 }
 
+// TipTap's blockquote schema strips class/data-* attributes from blockquotes.
+// This function detects blockquotes containing twitter.com/x.com links with "Tweet"
+// text (the signature of our tweet embeds) and restores the twitter-tweet class
+// so the correct HTML is saved to the database.
+const restoreTweetEmbeds = (html: string): string =>
+  html.replace(
+    /<blockquote><p><a[^>]*href="(https?:\/\/(?:twitter\.com|x\.com)\/\w+\/status\/\d+)"[^>]*>Tweet<\/a><\/p><\/blockquote>/g,
+    '<blockquote class="twitter-tweet"><a href="$1">Tweet</a></blockquote>'
+  );
+
 export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkPopup, setShowLinkPopup] = useState(false);
@@ -43,6 +54,8 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const [showHtml, setShowHtml] = useState(false);
   const [htmlSource, setHtmlSource] = useState("");
   const [showTableMenu, setShowTableMenu] = useState(false);
+  const [showTweetPopup, setShowTweetPopup] = useState(false);
+  const [tweetUrl, setTweetUrl] = useState("");
   const imageInputRef = useRef<HTMLInputElement>(null);
   const tableMenuRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +88,7 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
     ],
     content,
     onUpdate: ({ editor: e }) => {
-      onUpdate(e.getHTML());
+      onUpdate(restoreTweetEmbeds(e.getHTML()));
     },
     editorProps: {
       attributes: {
@@ -157,6 +170,25 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       setShowHtml(false);
     }
   }, [editor, showHtml, htmlSource, onUpdate]);
+
+  const handleTweetInsert = useCallback(() => {
+    if (!editor || !tweetUrl.trim()) return;
+    const url = tweetUrl.trim();
+    const match = url.match(/(?:twitter\.com|x\.com)\/(\w+)\/status\/(\d+)/);
+    if (!match) {
+      toast.error("URL de tweet inválida. Usá el formato: https://x.com/usuario/status/123...");
+      return;
+    }
+    // Insert as raw HTML appended to current content. TipTap's setContent will
+    // strip class/data-* attrs, but restoreTweetEmbeds in onUpdate restores them
+    // before saving to the database.
+    const tweetBlockquote = `<blockquote class="twitter-tweet"><a href="https://twitter.com/${match[1]}/status/${match[2]}">Tweet</a></blockquote>`;
+    const currentHtml = editor.getHTML();
+    editor.commands.setContent(currentHtml + tweetBlockquote + "<p></p>");
+    setTweetUrl("");
+    setShowTweetPopup(false);
+    toast.success("Tweet insertado");
+  }, [editor, tweetUrl]);
 
   if (!editor) return null;
 
@@ -392,6 +424,43 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
                 label="Eliminar tabla"
                 destructive
               />
+            </div>
+          )}
+        </div>
+
+        {/* Twitter embed */}
+        <div className="relative">
+          <ToolbarButton
+            active={false}
+            onClick={() => {
+              setTweetUrl("");
+              setShowTweetPopup(!showTweetPopup);
+            }}
+            title="Insertar tweet"
+          >
+            <Twitter className="h-4 w-4" />
+          </ToolbarButton>
+
+          {showTweetPopup && (
+            <div className="absolute left-0 top-full mt-2 z-50 w-80 rounded-xl border border-neutral-200 bg-white p-3 shadow-lg">
+              <p className="text-xs text-neutral-500 mb-2">Pegá la URL del tweet de X/Twitter</p>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={tweetUrl}
+                  onChange={(e) => setTweetUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleTweetInsert()}
+                  placeholder="https://x.com/usuario/status/..."
+                  autoFocus
+                  className="h-8 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 text-sm focus:bg-white focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-900/5 transition-all duration-200"
+                />
+                <button
+                  onClick={handleTweetInsert}
+                  className="h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors duration-200"
+                >
+                  OK
+                </button>
+              </div>
             </div>
           )}
         </div>
