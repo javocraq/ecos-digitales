@@ -28,24 +28,74 @@ import {
   Plus,
   Trash2,
   Twitter,
+  Copy,
+  Check,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { TweetEmbed } from "./TweetEmbedNode";
 
 interface RichTextEditorProps {
   content: string;
   onUpdate: (html: string) => void;
 }
 
-// TipTap's blockquote schema strips class/data-* attributes from blockquotes.
-// This function detects blockquotes containing twitter.com/x.com links with "Tweet"
-// text (the signature of our tweet embeds) and restores the twitter-tweet class
-// so the correct HTML is saved to the database.
-const restoreTweetEmbeds = (html: string): string =>
-  html.replace(
-    /<blockquote><p><a[^>]*href="(https?:\/\/(?:twitter\.com|x\.com)\/\w+\/status\/\d+)"[^>]*>Tweet<\/a><\/p><\/blockquote>/g,
-    '<blockquote class="twitter-tweet"><a href="$1">Tweet</a></blockquote>'
-  );
+const highlightHtml = (code: string): string =>
+  code
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(
+      // Match full tags: &lt;tagname ...attrs&gt; or &lt;/tagname&gt;
+      /(&lt;\/?)([\w-]+)((?:\s[^&]*?)?)(&gt;)/g,
+      (_m, open, tag, attrs, close) => {
+        const highlightedAttrs = attrs.replace(
+          // attribute="value"
+          /([\w-]+)(=)(&quot;|&#39;|")(.*?)(\3)/g,
+          '<span style="color:#8b5cf6">$1</span><span style="color:#6b7280">$2</span><span style="color:#16a34a">$3$4$5</span>'
+        );
+        return `<span style="color:#6b7280">${open}</span><span style="color:#2563eb">${tag}</span>${highlightedAttrs}<span style="color:#6b7280">${close}</span>`;
+      }
+    );
+
+const BLOCK_OPEN = /^<(p|h[1-6]|blockquote|ul|ol|li|table|thead|tbody|tr|th|td|div|hr|img|pre|figure|figcaption|iframe)\b/i;
+const BLOCK_CLOSE = /^<\/(p|h[1-6]|blockquote|ul|ol|li|table|thead|tbody|tr|th|td|div|pre|figure|figcaption|iframe)>/i;
+const CONTAINER_CLOSE = /^<\/(ul|ol|table|thead|tbody|tr|blockquote|div)>/i;
+
+const prettyPrintHtml = (html: string): string => {
+  const tokens = html.replace(/>\s+</g, "><").split(/(<[^>]+>)/g).filter(Boolean);
+  let indent = 0;
+  const lines: string[] = [];
+
+  for (const token of tokens) {
+    const isClosing = BLOCK_CLOSE.test(token);
+    const isOpening = BLOCK_OPEN.test(token);
+    const isSelfClosing = /\/\s*>$/.test(token) || /^<(hr|br|img|input)\b/i.test(token);
+
+    if (isClosing) {
+      indent = Math.max(0, indent - 1);
+      if (CONTAINER_CLOSE.test(token)) {
+        // Container closing tags get their own line
+        lines.push("  ".repeat(indent) + token);
+      } else if (lines.length > 0) {
+        // Leaf closing tags stay on same line: <p>text</p>
+        lines[lines.length - 1] += token;
+      } else {
+        lines.push(token);
+      }
+    } else if (isOpening) {
+      lines.push("  ".repeat(indent) + token);
+      if (!isSelfClosing) indent++;
+    } else {
+      if (lines.length > 0) {
+        lines[lines.length - 1] += token;
+      } else {
+        lines.push(token);
+      }
+    }
+  }
+  return lines.join("\n");
+};
 
 export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const [linkUrl, setLinkUrl] = useState("");
@@ -53,6 +103,7 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showHtml, setShowHtml] = useState(false);
   const [htmlSource, setHtmlSource] = useState("");
+  const [copied, setCopied] = useState(false);
   const [showTableMenu, setShowTableMenu] = useState(false);
   const [showTweetPopup, setShowTweetPopup] = useState(false);
   const [tweetUrl, setTweetUrl] = useState("");
@@ -85,10 +136,11 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       TableRow,
       TableCell,
       TableHeader,
+      TweetEmbed,
     ],
     content,
     onUpdate: ({ editor: e }) => {
-      onUpdate(restoreTweetEmbeds(e.getHTML()));
+      onUpdate(e.getHTML());
     },
     editorProps: {
       attributes: {
@@ -160,16 +212,24 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const handleToggleHtml = useCallback(() => {
     if (!editor) return;
     if (!showHtml) {
-      // Switching to HTML mode
-      setHtmlSource(editor.getHTML());
+      setHtmlSource(prettyPrintHtml(editor.getHTML()));
       setShowHtml(true);
     } else {
-      // Switching back to visual mode
-      editor.commands.setContent(htmlSource);
-      onUpdate(htmlSource);
+      // Collapse formatted HTML back to single-line before feeding to TipTap
+      const collapsed = htmlSource.replace(/\n\s*/g, "");
+      editor.commands.setContent(collapsed);
+      onUpdate(collapsed);
       setShowHtml(false);
     }
+    setCopied(false);
   }, [editor, showHtml, htmlSource, onUpdate]);
+
+  const handleCopyHtml = useCallback(() => {
+    navigator.clipboard.writeText(htmlSource).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [htmlSource]);
 
   const handleTweetInsert = useCallback(() => {
     if (!editor || !tweetUrl.trim()) return;
@@ -179,12 +239,16 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       toast.error("URL de tweet inválida. Usá el formato: https://x.com/usuario/status/123...");
       return;
     }
-    // Insert as raw HTML appended to current content. TipTap's setContent will
-    // strip class/data-* attrs, but restoreTweetEmbeds in onUpdate restores them
-    // before saving to the database.
-    const tweetBlockquote = `<blockquote class="twitter-tweet"><a href="https://twitter.com/${match[1]}/status/${match[2]}">Tweet</a></blockquote>`;
-    const currentHtml = editor.getHTML();
-    editor.commands.setContent(currentHtml + tweetBlockquote + "<p></p>");
+    const src = `https://twitter.com/${match[1]}/status/${match[2]}`;
+    editor
+      .chain()
+      .focus()
+      // Split out of any current block, insert tweet as independent block + trailing paragraph
+      .insertContent([
+        { type: "tweetEmbed", attrs: { src } },
+        { type: "paragraph" },
+      ])
+      .run();
     setTweetUrl("");
     setShowTweetPopup(false);
     toast.success("Tweet insertado");
@@ -480,12 +544,54 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
 
       {/* Editor area */}
       {showHtml ? (
-        <textarea
-          value={htmlSource}
-          onChange={(e) => setHtmlSource(e.target.value)}
-          className="w-full min-h-[400px] px-5 py-3 font-mono text-sm bg-neutral-900 text-green-400 focus:outline-none resize-y"
-          spellCheck={false}
-        />
+        <div className="relative m-3 rounded-lg border border-neutral-200 bg-white">
+          <button
+            type="button"
+            onClick={handleCopyHtml}
+            className="absolute top-2 right-2 z-10 inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700 transition-colors"
+            title="Copiar HTML"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-green-500" />
+                <span className="text-green-600">Copiado</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5" />
+                <span>Copiar</span>
+              </>
+            )}
+          </button>
+          <div className="relative min-h-[400px]" style={{ fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', monospace", fontSize: 13, lineHeight: 1.625 }}>
+            {/* Highlighted layer (behind) */}
+            <pre
+              aria-hidden
+              className="p-4 pr-24 whitespace-pre-wrap break-words pointer-events-none"
+              style={{ margin: 0, font: "inherit", color: "#1a1a1a" }}
+              dangerouslySetInnerHTML={{ __html: highlightHtml(htmlSource) + "\n" }}
+            />
+            {/* Editable layer (transparent text, visible caret) */}
+            <textarea
+              ref={(el) => {
+                if (el) {
+                  el.style.height = "auto";
+                  el.style.height = el.scrollHeight + "px";
+                }
+              }}
+              value={htmlSource}
+              onChange={(e) => {
+                setHtmlSource(e.target.value);
+                const el = e.target;
+                el.style.height = "auto";
+                el.style.height = el.scrollHeight + "px";
+              }}
+              className="absolute inset-0 w-full h-full p-4 pr-24 bg-transparent focus:outline-none resize-none overflow-hidden whitespace-pre-wrap break-words"
+              style={{ font: "inherit", color: "transparent", caretColor: "#1a1a1a" }}
+              spellCheck={false}
+            />
+          </div>
+        </div>
       ) : (
         <EditorContent editor={editor} />
       )}

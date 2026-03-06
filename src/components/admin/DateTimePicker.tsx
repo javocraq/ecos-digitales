@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -59,9 +58,18 @@ export function DateTimePicker({ value, onChange, error }: DateTimePickerProps) 
     setOpen(false);
   };
 
-  const displayText = value
-    ? format(parse(value, "yyyy-MM-dd'T'HH:mm", new Date()), "d MMM yyyy, hh:mm a", { locale: es })
-    : "Sin fecha (borrador)";
+  const displayText = useMemo(() => {
+    if (!value) return "Sin fecha (borrador)";
+    const { date, hour, minute } = parsed;
+    if (!date) return "Sin fecha (borrador)";
+    const day = date.getDate();
+    const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    const h12 = hour % 12 || 12;
+    const ampm = hour < 12 ? "AM" : "PM";
+    return `${day} ${month} ${year}, ${pad(h12)}:${pad(minute)} ${ampm}`;
+  }, [value, parsed]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
