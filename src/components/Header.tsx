@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import logo from "@/assets/logo.jpg";
 
 interface HeaderProps {
   showShare?: boolean;
@@ -60,14 +59,15 @@ export const Header = ({ showShare = false }: HeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="container flex h-14 items-center justify-between gap-4">
-        {/* Left: Logo + Name */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <Link to="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-            <img src={logo} alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
-            <span className="text-base font-bold text-foreground tracking-tight hidden sm:block">
-              Ecos Digitales
-            </span>
+      <div className="container flex h-16 items-center justify-between gap-4">
+        {/* Left: Logo */}
+        <div className="flex items-center shrink-0">
+          <Link to="/" className="flex items-center transition-opacity hover:opacity-80" aria-label="Ecos Digitales — Inicio">
+            <img
+              src="/logo-ecosdigitales.svg"
+              alt="Ecos Digitales"
+              className="h-12 w-auto"
+            />
           </Link>
         </div>
 

@@ -11,6 +11,7 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { ArticleDetailSkeleton } from "@/components/ArticleDetailSkeleton";
 import { SEO } from "@/components/SEO";
 import { useArticleBySlug, useArticles } from "@/hooks/useArticles";
+import { splitContentBlocks } from "@/lib/splitContentBlocks";
 
 const Article = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -89,12 +90,12 @@ const Article = () => {
   const renderContent = (htmlContent: string) => {
     const sanitized = DOMPurify.sanitize(htmlContent, {
       ADD_TAGS: ["iframe"],
-      ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "src", "width", "height", "class", "data-lang", "data-theme", "data-dnt"],
+      ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "src", "width", "height", "class", "data-lang", "data-theme", "data-dnt", "data-variant"],
       ALLOW_DATA_ATTR: true,
     });
 
-    const blockRegex = /(<(?:p|h[1-6]|blockquote|ul|ol|pre|hr|div|table|figure|img|iframe)[^>]*>[\s\S]*?<\/(?:p|h[1-6]|blockquote|ul|ol|pre|div|table|figure|iframe)>|<(?:hr|img|iframe)[^>]*\/?>)/gi;
-    const blocks = sanitized.match(blockRegex) || [sanitized];
+    const blocks = splitContentBlocks(sanitized);
+    if (blocks.length === 0) return null;
 
     const showInline = blocks.length >= 4 && inlineRelatedArticles.length > 0;
     const midpoint = Math.floor(blocks.length / 2);

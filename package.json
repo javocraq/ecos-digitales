@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate-sitemap": "node --env-file=.env scripts/generate-sitemap.mjs"
+    "generate-sitemap": "node --env-file=.env scripts/generate-sitemap.mjs",
+    "create-test-article": "node --env-file=.env scripts/create-test-article.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

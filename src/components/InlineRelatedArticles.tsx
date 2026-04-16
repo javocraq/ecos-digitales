@@ -60,7 +60,7 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
                     {article.title}
                   </h4>
                   <div className="flex items-center gap-2">
-                    <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-primary/80 bg-primary/8 px-2 py-0.5 rounded-md">
+                    <span className="inline-block text-[10px] font-semibold capitalize tracking-wide text-primary/80 bg-primary/8 px-2 py-0.5 rounded-md">
                       {article.category_name}
                     </span>
                     <span className="text-[11px] text-muted-foreground">

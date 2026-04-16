@@ -99,7 +99,7 @@ export const ArticleCard = memo(({ article, variant = "grid", priority = false }
         {/* Content on left */}
         <div className="flex flex-1 flex-col min-w-0">
           {/* Category - hidden on mobile */}
-          <span className="hidden sm:block text-[0.75rem] font-medium text-primary uppercase tracking-[0.5px] mb-2">{category_name}</span>
+          <span className="hidden sm:block text-[0.75rem] font-medium text-primary capitalize tracking-[0.5px] mb-2">{category_name}</span>
           {/* Title */}
           <h3 className="text-[0.9375rem] leading-[1.3] sm:text-base font-semibold text-foreground transition-colors group-hover:text-primary line-clamp-3">
             {title}

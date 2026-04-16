@@ -22,7 +22,7 @@ export const FeaturedHeadlines = ({ articles }: FeaturedHeadlinesProps) => {
                 index < 2 ? "md:border-r md:border-border" : ""
               } ${index > 0 ? "border-t md:border-t-0 border-border" : ""}`}
             >
-              <span className="text-[10px] font-medium uppercase tracking-[1px] text-primary/80 block mb-[6px]">
+              <span className="text-[10px] font-medium capitalize tracking-[1px] text-primary/80 block mb-[6px]">
                 {article.category_name}
               </span>
               <h3 className="text-[16px] leading-[1.4] font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors mt-2">

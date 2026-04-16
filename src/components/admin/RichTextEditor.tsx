@@ -30,10 +30,12 @@ import {
   Twitter,
   Copy,
   Check,
+  Lightbulb,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TweetEmbed } from "./TweetEmbedNode";
+import { Callout } from "./CalloutNode";
 
 interface RichTextEditorProps {
   content: string;
@@ -137,6 +139,7 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       TableCell,
       TableHeader,
       TweetEmbed,
+      Callout,
     ],
     content,
     onUpdate: ({ editor: e }) => {
@@ -333,6 +336,14 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
           title="Lista numerada"
         >
           <ListOrdered className="h-4 w-4" />
+        </ToolbarButton>
+
+        <ToolbarButton
+          active={editor.isActive("callout")}
+          onClick={() => editor.chain().focus().toggleCallout().run()}
+          title="Nota destacada"
+        >
+          <Lightbulb className="h-4 w-4" />
         </ToolbarButton>
 
         <ToolbarSeparator />

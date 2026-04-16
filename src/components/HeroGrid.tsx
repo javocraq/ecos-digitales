@@ -129,7 +129,7 @@ const ArticleCardSmall = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-5">
           <div className="w-8 h-0.5 bg-white mb-2" />
-          <span className="text-[0.6875rem] font-medium uppercase tracking-[0.5px] text-white/70 mb-1 block">
+          <span className="text-[0.6875rem] font-medium capitalize tracking-[0.5px] text-white/70 mb-1 block">
             {article.category_name}
           </span>
           <h3 className="text-lg font-bold text-white line-clamp-3 mb-2">

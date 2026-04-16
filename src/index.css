@@ -28,6 +28,26 @@
 .tiptap th, .tiptap td { border: 1px solid hsl(var(--border)); padding: 8px 12px; min-width: 80px; }
 .tiptap th { background: hsl(var(--muted)); font-weight: 600; }
 .tiptap .selectedCell { background: hsl(var(--primary) / 0.08); }
+.tiptap aside.callout {
+  position: relative;
+  border-left: 4px solid hsl(var(--primary));
+  background: hsl(var(--primary) / 0.06);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem 0.875rem 2.5rem;
+  margin: 1rem 0;
+  color: hsl(var(--foreground));
+}
+.tiptap aside.callout::before {
+  content: "💡";
+  position: absolute;
+  top: 0.875rem;
+  left: 0.875rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+.tiptap aside.callout > * { margin: 0; }
+.tiptap aside.callout > * + * { margin-top: 0.5rem; }
+.tiptap li > p { margin-bottom: 0; }
 
 /* News Portal Design System - Editorial Modern */
 
@@ -212,6 +232,56 @@
     @apply mb-2;
   }
 
+  /* Tiptap wraps list-item content in <p>. Don't let it carry the normal
+     24px paragraph margin — that made items look like separated paragraphs. */
+  .article-content li > p {
+    margin-bottom: 0;
+  }
+  .article-content li > p + p {
+    margin-top: 0.5rem;
+  }
+
+  .article-content aside.callout {
+    position: relative;
+    border-left: 4px solid hsl(var(--primary));
+    background: hsl(var(--primary) / 0.06);
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem 1rem 2.75rem;
+    margin: 2rem 0;
+    color: hsl(var(--foreground));
+    font-style: normal;
+  }
+  .article-content aside.callout::before {
+    content: "💡";
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  .article-content aside.callout[data-variant="warning"] {
+    border-left-color: hsl(38 92% 50%);
+    background: hsl(38 92% 50% / 0.08);
+  }
+  .article-content aside.callout[data-variant="warning"]::before {
+    content: "⚠️";
+  }
+  .article-content aside.callout[data-variant="success"] {
+    border-left-color: hsl(142 71% 45%);
+    background: hsl(142 71% 45% / 0.08);
+  }
+  .article-content aside.callout[data-variant="success"]::before {
+    content: "✅";
+  }
+  .article-content aside.callout > *:first-child { margin-top: 0; }
+  .article-content aside.callout > *:last-child { margin-bottom: 0; }
+  .article-content aside.callout p {
+    margin-bottom: 0.75rem;
+  }
+  .article-content aside.callout p:last-child {
+    margin-bottom: 0;
+  }
+
   .article-content iframe {
     @apply w-full my-8 rounded-lg;
     aspect-ratio: 16 / 9;
@@ -259,6 +329,16 @@
     border-collapse: collapse;
     width: 100%;
     margin: 1.5rem 0;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (min-width: 640px) {
+    .article-content table {
+      display: table;
+      overflow-x: visible;
+    }
   }
 
   .article-content th,
