@@ -6,6 +6,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import type { ArticleListing } from "@/hooks/useArticles";
+import { formatCardDate } from "@/lib/formatCardDate";
 
 interface RelatedArticlesProps {
   articles: ArticleListing[];
@@ -125,7 +126,7 @@ export const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
 // Mobile card - Same style as "Últimas noticias"
 const MobileRelatedCard = ({ article }: { article: ArticleListing }) => {
   const { title, published_at, slug, featured_image_url } = article;
-  const formattedDate = format(new Date(published_at), "d MMM", { locale: es }).toUpperCase();
+  const formattedDate = formatCardDate(published_at);
 
   return (
     <Link to={`/noticias/${slug}`} className="group block">

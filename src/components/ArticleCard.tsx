@@ -1,9 +1,8 @@
 import { memo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import type { ArticleListing } from "@/hooks/useArticles";
 import { usePrefetchArticle } from "@/hooks/useArticles";
+import { formatCardDate } from "@/lib/formatCardDate";
 import { OptimizedImage } from "./OptimizedImage";
 
 interface ArticleCardProps {
@@ -14,7 +13,7 @@ interface ArticleCardProps {
 
 export const ArticleCard = memo(({ article, variant = "grid", priority = false }: ArticleCardProps) => {
   const { title, category_name, featured_image_url, published_at, slug } = article;
-  const formattedDate = format(new Date(published_at), "d MMM", { locale: es }).toUpperCase();
+  const formattedDate = formatCardDate(published_at);
   const prefetch = usePrefetchArticle();
   const handleMouseEnter = useCallback(() => prefetch(slug), [prefetch, slug]);
 
@@ -105,7 +104,7 @@ export const ArticleCard = memo(({ article, variant = "grid", priority = false }
             {title}
           </h3>
           {/* Date at bottom */}
-          <span className="text-[0.75rem] font-medium uppercase tracking-[0.5px] text-muted-foreground mt-auto pt-3">{formattedDate}</span>
+          <span className="text-[0.75rem] font-medium tracking-[0.5px] text-muted-foreground mt-auto pt-3">{formattedDate}</span>
         </div>
         {/* Thumbnail on right */}
         <div className="relative aspect-square w-24 sm:aspect-video sm:w-32 flex-shrink-0 overflow-hidden rounded-xl bg-muted">

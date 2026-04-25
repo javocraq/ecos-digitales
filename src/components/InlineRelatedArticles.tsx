@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArticleListing } from "@/hooks/useArticles";
 import { OptimizedImage } from "./OptimizedImage";
+import { formatCardDate } from "@/lib/formatCardDate";
 
 interface InlineRelatedArticlesProps {
   articles: ArticleListing[];
@@ -29,7 +28,7 @@ export const InlineRelatedArticles = ({ articles, currentSlug }: InlineRelatedAr
       {/* Cards */}
       <div className="flex flex-col gap-0">
         {displayed.map((article, index) => {
-          const formattedDate = format(new Date(article.published_at), "d MMM", { locale: es });
+          const formattedDate = formatCardDate(article.published_at);
 
           return (
             <div key={article.slug}>

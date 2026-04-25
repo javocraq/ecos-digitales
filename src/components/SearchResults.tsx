@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import type { Article } from "@/data/mockArticles";
+import { formatCardDate } from "@/lib/formatCardDate";
 
 interface SearchResultsProps {
   articles: Article[];
@@ -12,7 +11,7 @@ interface SearchResultsProps {
 
 const SearchResultCard = ({ article }: { article: Article }) => {
   const { title, category, image_url, published_date, slug } = article;
-  const formattedDate = format(new Date(published_date), "d MMM", { locale: es }).toUpperCase();
+  const formattedDate = formatCardDate(published_date);
 
   return (
     <Link to={`/noticias/${slug}`} className="group block">

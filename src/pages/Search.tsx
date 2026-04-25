@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoadingGrid } from "@/components/LoadingGrid";
 import { SEO } from "@/components/SEO";
 import { useArticles, type ArticleListing } from "@/hooks/useArticles";
 import { getExcerpt } from "@/lib/getExcerpt";
+import { formatCardDate } from "@/lib/formatCardDate";
+
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Search as SearchIcon } from "lucide-react";
 
@@ -22,7 +22,7 @@ interface SearchResult {
 }
 
 const ArticleResultCard = ({ result }: { result: SearchResult }) => {
-  const formattedDate = format(new Date(result.date), "d MMM", { locale: es }).toUpperCase();
+  const formattedDate = formatCardDate(result.date);
   return (
     <Link to={`/noticias/${result.slug}`} className="group block">
       <article className="flex items-start gap-4 rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:border-primary/20 hover:shadow-card-hover sm:gap-6 sm:p-5">

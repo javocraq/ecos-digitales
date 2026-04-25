@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArticleCard } from "./ArticleCard";
 import { OptimizedImage } from "./OptimizedImage";
 import { Button } from "./ui/button";
 import type { ArticleListing } from "@/hooks/useArticles";
+import { formatCardDate } from "@/lib/formatCardDate";
 
 interface ArticleGridPaginatedProps {
   articles: ArticleListing[];
@@ -38,7 +37,7 @@ export const ArticleGridPaginated = ({
       {/* Mobile: Compact list style (like LatestNewsWidget) */}
       <div className="block sm:hidden space-y-[24px]">
         {visibleArticles.map((article) => {
-          const formattedDate = format(new Date(article.published_at), "d MMM", { locale: es }).toUpperCase();
+          const formattedDate = formatCardDate(article.published_at);
           
           return (
             <Link
@@ -58,7 +57,7 @@ export const ArticleGridPaginated = ({
                 <h4 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-primary leading-[1.3]">
                   {article.title}
                 </h4>
-                <span className="text-[0.75rem] font-medium uppercase tracking-[0.5px] text-muted-foreground">{formattedDate}</span>
+                <span className="text-[0.75rem] font-medium tracking-[0.5px] text-muted-foreground">{formattedDate}</span>
               </div>
             </Link>
           );

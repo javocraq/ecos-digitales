@@ -5,6 +5,7 @@ import { OptimizedImage } from "./OptimizedImage";
 import { Skeleton } from "./ui/skeleton";
 import type { ArticleListing } from "@/hooks/useArticles";
 import { getExcerpt } from "@/lib/getExcerpt";
+import { formatCardDate } from "@/lib/formatCardDate";
 
 // Helper to format date with relative time for recent articles
 const formatArticleDate = (dateString: string) => {
@@ -18,18 +19,16 @@ const formatArticleDate = (dateString: string) => {
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     if (diffMinutes < 1) {
-      return "hace un momento";
+      return "Hace un momento";
     } else if (diffMinutes < 60) {
-      return `hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
+      return `Hace ${diffMinutes} ${diffMinutes === 1 ? "minuto" : "minutos"}`;
     } else {
-      return `hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
+      return `Hace ${diffHours} ${diffHours === 1 ? "hora" : "horas"}`;
     }
   }
 
   // Different day: show fixed date
-  return format(date, "d MMM", {
-    locale: es
-  });
+  return formatCardDate(date);
 };
 interface HeroGridProps {
   articles: ArticleListing[];
@@ -117,8 +116,8 @@ const ArticleCardSmall = ({
           <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
             {article.title}
           </h3>
-          <div className="flex items-center gap-2 text-[0.75rem] font-medium uppercase tracking-[0.5px] text-muted-foreground">
-            <span className="text-primary/80">{formattedDate}</span>
+          <div className="flex items-center gap-2 text-[0.75rem] font-medium tracking-[0.5px] text-muted-foreground">
+            <span>{formattedDate}</span>
           </div>
         </div>
       </div>
