@@ -24,7 +24,6 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { FileText, TrendingUp, FileEdit, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
@@ -269,29 +268,21 @@ const Analytics = () => {
         {/* KPI cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           <KpiCard
-            icon={FileText}
             label="Total publicadas"
             value={formatCompact(counts.totalPublished)}
-            tone={SLACK.aubergine}
           />
           <KpiCard
-            icon={TrendingUp}
             label="Este mes"
             value={counts.publishedThisMonth}
-            tone={SLACK.green}
           />
           <KpiCard
-            icon={FileEdit}
             label="Borradores"
             value={counts.drafts}
-            tone={SLACK.yellow}
           />
           <KpiCard
-            icon={Users}
             label="Autores activos"
             value={counts.activeAuthors}
             hint="últimos 90 días"
-            tone={SLACK.blue}
           />
         </div>
 
@@ -428,26 +419,20 @@ const Analytics = () => {
 };
 
 const KpiCard = ({
-  icon: Icon,
   label,
   value,
   hint,
-  tone,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string | number;
   hint?: string;
-  tone: string;
 }) => (
-  <div className="rounded-xl border border-black/[0.06] bg-white p-4 relative overflow-hidden">
-    <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: tone }} />
-    <div className="flex items-center gap-2 text-[11px] text-neutral-500 uppercase tracking-wider font-medium pl-2">
-      <Icon className="h-3.5 w-3.5" style={{ color: tone }} />
+  <div className="rounded-xl border border-black/[0.06] bg-white p-4">
+    <div className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
       {label}
     </div>
-    <div className="mt-2 text-2xl font-bold text-neutral-900 tabular-nums pl-2">{value}</div>
-    {hint && <div className="text-[11px] text-neutral-400 mt-0.5 pl-2">{hint}</div>}
+    <div className="mt-2 text-2xl font-bold text-neutral-900 tabular-nums">{value}</div>
+    {hint && <div className="text-[11px] text-neutral-400 mt-0.5">{hint}</div>}
   </div>
 );
 
