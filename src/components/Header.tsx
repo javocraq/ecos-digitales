@@ -66,7 +66,7 @@ export const Header = ({ showShare = false }: HeaderProps) => {
             <img
               src="/logo-ecosdigitales.svg"
               alt="Ecos Digitales"
-              className="h-12 w-auto"
+              className="h-14 sm:h-[60px] w-auto"
             />
           </Link>
         </div>
