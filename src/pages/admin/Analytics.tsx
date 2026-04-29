@@ -84,8 +84,8 @@ const Analytics = () => {
   const [counts, setCounts] = useState({
     totalPublished: 0,
     publishedThisMonth: 0,
-    drafts: 0,
-    activeAuthors: 0,
+    publishedLastMonth: 0,
+    publishedThisWeek: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -96,14 +96,15 @@ const Analytics = () => {
 
       const now = new Date();
       const monthStartIso = startOfMonth(now).toISOString();
-      const ninetyDaysAgoIso = subDays(now, 90).toISOString();
+      const lastMonthStartIso = startOfMonth(subMonths(now, 1)).toISOString();
+      const sevenDaysAgoIso = subDays(now, 7).toISOString();
 
       // Counts via head:true count queries — return the real total without pulling rows
       const [
         totalRes,
         thisMonthRes,
-        draftsRes,
-        activeAuthorsRes,
+        lastMonthRes,
+        thisWeekRes,
         chartRows,
       ] = await Promise.all([
         supabase
@@ -118,15 +119,14 @@ const Analytics = () => {
         supabase
           .from("articles")
           .select("id", { count: "exact", head: true })
-          .eq("status", "draft"),
-        // Distinct author_ids active in last 90 days — paginated
-        fetchAllRows<{ author_id: string | null }>(() =>
-          supabase
-            .from("articles")
-            .select("author_id")
-            .eq("status", "published")
-            .gte("published_at", ninetyDaysAgoIso)
-        ),
+          .eq("status", "published")
+          .gte("published_at", lastMonthStartIso)
+          .lt("published_at", monthStartIso),
+        supabase
+          .from("articles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "published")
+          .gte("published_at", sevenDaysAgoIso),
         // Chart rows: all published articles, projecting only the fields we need
         fetchAllRows<ChartArticle>(() =>
           supabase
@@ -139,17 +139,11 @@ const Analytics = () => {
 
       if (cancelled) return;
 
-      const distinctAuthors = new Set(
-        (activeAuthorsRes as { author_id: string | null }[])
-          .map((r) => r.author_id)
-          .filter(Boolean)
-      ).size;
-
       setCounts({
         totalPublished: totalRes.count ?? 0,
         publishedThisMonth: thisMonthRes.count ?? 0,
-        drafts: draftsRes.count ?? 0,
-        activeAuthors: distinctAuthors,
+        publishedLastMonth: lastMonthRes.count ?? 0,
+        publishedThisWeek: thisWeekRes.count ?? 0,
       });
       setChartArticles(chartRows);
       setLoading(false);
@@ -274,15 +268,27 @@ const Analytics = () => {
           <KpiCard
             label="Este mes"
             value={counts.publishedThisMonth}
+            hint={
+              counts.publishedLastMonth > 0
+                ? `${
+                    counts.publishedThisMonth >= counts.publishedLastMonth ? "+" : ""
+                  }${(
+                    ((counts.publishedThisMonth - counts.publishedLastMonth) /
+                      counts.publishedLastMonth) *
+                    100
+                  ).toFixed(0)}% vs mes anterior`
+                : undefined
+            }
           />
           <KpiCard
-            label="Borradores"
-            value={counts.drafts}
+            label="Mes anterior"
+            value={counts.publishedLastMonth}
+            hint={format(subMonths(new Date(), 1), "MMMM yyyy", { locale: es })}
           />
           <KpiCard
-            label="Autores activos"
-            value={counts.activeAuthors}
-            hint="últimos 90 días"
+            label="Esta semana"
+            value={counts.publishedThisWeek}
+            hint="últimos 7 días"
           />
         </div>
 
