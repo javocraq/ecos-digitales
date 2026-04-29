@@ -3,7 +3,6 @@ import { NavLink, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
-  Plus,
   PanelLeftClose,
   PanelLeftOpen,
   LogOut,
@@ -30,14 +29,14 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   const navItems = [
     {
-      to: `${ADMIN_BASE_PATH}/dashboard`,
-      icon: LayoutDashboard,
-      label: "Dashboard",
-    },
-    {
       to: `${ADMIN_BASE_PATH}/articulos`,
       icon: FileText,
       label: "Artículos",
+    },
+    {
+      to: `${ADMIN_BASE_PATH}/dashboard`,
+      icon: LayoutDashboard,
+      label: "Dashboard",
     },
   ];
 
@@ -78,20 +77,6 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
               <PanelLeftClose className="h-4 w-4" />
             )}
           </button>
-        </div>
-
-        {/* New note button */}
-        <div className="px-3 pb-2">
-          <Link
-            to={`${ADMIN_BASE_PATH}/editor`}
-            className={`flex items-center ${
-              collapsed ? "justify-center" : "gap-2 px-2"
-            } h-8 rounded-md text-[13px] font-medium text-neutral-700 hover:bg-black/[0.04] transition-colors`}
-            title="Nueva nota"
-          >
-            <Plus className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Nueva nota</span>}
-          </Link>
         </div>
 
         {/* Nav */}
