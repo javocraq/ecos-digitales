@@ -111,10 +111,6 @@ const SobreNosotros = () => (
               </a>
               .
             </p>
-            <p>
-              El contenido publicado es accesible de forma gratuita. No
-              operamos detrás de un paywall.
-            </p>
 
             <h2>Newsletter</h2>
             <p>
