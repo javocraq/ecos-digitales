@@ -17,6 +17,10 @@ const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Search = lazy(() => import("./pages/Search"));
 const EditionsIndex = lazy(() => import("./pages/EditionsIndex"));
 const EditionDetail = lazy(() => import("./pages/EditionDetail"));
+const Prensa = lazy(() => import("./pages/Prensa"));
+const NewsletterConfirmado = lazy(() => import("./pages/newsletter/Confirmado"));
+const NewsletterDesuscrito = lazy(() => import("./pages/newsletter/Desuscrito"));
+const NewsletterError = lazy(() => import("./pages/newsletter/Error"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Lazy load admin pages
@@ -64,6 +68,10 @@ const App = () => (
               <Route path="/toolbox/:slug" element={<ToolDetail />} />
               <Route path="/ediciones" element={<EditionsIndex />} />
               <Route path="/ediciones/:slug" element={<EditionDetail />} />
+              <Route path="/prensa" element={<Prensa />} />
+              <Route path="/newsletter/confirmado" element={<NewsletterConfirmado />} />
+              <Route path="/newsletter/desuscrito" element={<NewsletterDesuscrito />} />
+              <Route path="/newsletter/error" element={<NewsletterError />} />
 
               {/* Admin routes — hidden, no public links */}
               <Route path={ADMIN_BASE_PATH} element={<AdminLogin />} />

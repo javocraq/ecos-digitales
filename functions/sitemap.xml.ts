@@ -116,6 +116,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   urls.push({ loc: safeUrl("/ediciones"), lastmod: today, changefreq: "weekly", priority: "0.9" });
   urls.push({ loc: safeUrl("/toolbox"), lastmod: today, changefreq: "weekly", priority: "0.7" });
   urls.push({ loc: safeUrl("/buscar"), lastmod: today, changefreq: "monthly", priority: "0.4" });
+  urls.push({ loc: safeUrl("/prensa"), lastmod: today, changefreq: "monthly", priority: "0.6" });
 
   // Si no hay Supabase configurada, devolvemos el sitemap mínimo en vez de error.
   // Esto cubre el caso de despliegue inicial o env vars rotas.
