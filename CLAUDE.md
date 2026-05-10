@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Contexto operativo del proyecto **Ecos Digitales** para asistentes Claude Code (y para humanos que se incorporen al equipo). Este archivo describe la arquitectura, convenciones y operaciones críticas. Léelo antes de hacer cambios estructurales.
 
 ---
@@ -24,6 +26,12 @@ Ecos Digitales/
 │   └── logo-ecosdigitales-v2.svg
 │
 ├── functions/                   # Cloudflare Pages Functions (edge runtime)
+│   ├── _lib/newsletter.ts      # Helpers compartidos: Supabase REST, Resend API, email templates
+│   ├── api/newsletter/
+│   │   ├── subscribe.ts         # POST: registra suscriptor + envía email de confirmación
+│   │   ├── confirm.ts           # GET: confirma suscripción + envía email de bienvenida
+│   │   ├── unsubscribe.ts       # GET: one-click unsubscribe (estándar Gmail/Yahoo 2024)
+│   │   └── webhook.ts           # POST: webhooks de Resend (opens, clicks, bounces)
 │   ├── noticias/[slug].ts       # OG meta tags dinámicos para crawlers de redes
 │   └── sitemap.xml.ts           # Sitemap generado dinámicamente desde Supabase
 │
@@ -34,11 +42,12 @@ Ecos Digitales/
 │   │   │   ├── EditionAssignment.tsx    # Toggle de ediciones en Editor.tsx
 │   │   │   └── RichTextEditor.tsx       # Editor TipTap
 │   │   ├── Header.tsx           # Navbar público
-│   │   ├── Footer.tsx
+│   │   ├── Footer.tsx           # Dark footer (zinc-950): newsletter + 3 columnas + social
+│   │   ├── NewsletterForm.tsx   # Form de suscripción con honeypot + validación
+│   │   ├── PressContactBlock.tsx# Email prensa con click-to-copy (variants: compact/full/footer)
 │   │   ├── HeroGrid.tsx         # Hero del home
 │   │   ├── ArticleCard.tsx      # Card de nota (mobile + grid)
 │   │   ├── RelatedArticles.tsx
-│   │   ├── EditionDetail.tsx    # (NO; está en pages/)
 │   │   ├── VideoEmbed.tsx       # Whitelist iframe YouTube/Vimeo
 │   │   └── SEO.tsx              # Meta tags via react-helmet-async
 │   │
@@ -50,6 +59,12 @@ Ecos Digitales/
 │   │   ├── ToolDetail.tsx       # /toolbox/:slug
 │   │   ├── EditionsIndex.tsx    # /ediciones
 │   │   ├── EditionDetail.tsx    # /ediciones/:slug
+│   │   ├── Prensa.tsx           # /prensa (contacto editorial, checklist, FAQ)
+│   │   ├── NotFound.tsx         # 404 branded
+│   │   ├── newsletter/
+│   │   │   ├── Confirmado.tsx   # /newsletter/confirmado
+│   │   │   ├── Desuscrito.tsx   # /newsletter/desuscrito
+│   │   │   └── Error.tsx        # /newsletter/error?reason=xxx
 │   │   └── admin/
 │   │       ├── Login.tsx        # /<admin>/
 │   │       ├── Articles.tsx     # /<admin>/articulos (lista de notas)
@@ -86,7 +101,13 @@ Ecos Digitales/
 | `edition_articles` | Junction artículo↔edición | `position` 1..50, doble UNIQUE constraint |
 | `sponsors` | Marcas patrocinadoras | reusables entre ediciones |
 | `site_settings` | Config global | Singleton (PRIMARY KEY BOOLEAN). Hoy solo: video destacado del home |
+| `subscribers` | Newsletter | Doble opt-in. `status` ∈ {pending, confirmed, unsubscribed, bounced, complained}. Tokens UUID para confirm/unsub |
+| `email_events` | Tracking Resend | Webhooks: sent, delivered, opened, clicked, bounced, complained, failed. FK → subscribers |
 | `user_roles` | RBAC | El RPC `has_role()` no está propagado consistentemente — ver §6 |
+
+### Vistas
+
+- `v_active_subscribers` → suscriptores confirmados (para queries de envío de campañas).
 
 ### RPCs
 
@@ -119,6 +140,8 @@ npm run dev   # → http://localhost:8080/
 ```
 
 `.env` tiene `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`. Mismo backend que producción (no hay staging).
+
+**⚠️ `npm run dev` no sirve Pages Functions** (solo el SPA). Para probar las funciones de newsletter localmente, usar `npx wrangler pages dev -- npm run dev` con un `.dev.vars` que contenga las env vars del edge (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, etc.). Alternativa: deploy directo a producción (`git push origin main`).
 
 ### Aplicar una migración nueva
 
@@ -171,6 +194,29 @@ Los assets en `/public/` no llevan content-hash. Si cambia un asset crítico (ej
 - Cache: 5min browser, 1h CDN. Los nuevos artículos aparecen en el sitemap dentro de la hora siguiente a la publicación.
 - **NO regenerar manualmente** — el viejo `public/sitemap.xml` quedó deprecado.
 
+### Newsletter (doble opt-in con Resend)
+- **Flujo**: subscribe (pending) → email de confirmación → click → confirmed → email de bienvenida. Unsubscribe con un solo clic.
+- **Backend**: Cloudflare Pages Functions en `functions/api/newsletter/`. Usan Supabase REST API con `service_role` key (NO el cliente JS). Resend REST API via `fetch()` (sin npm package).
+- **Helpers compartidos**: `functions/_lib/newsletter.ts` — queries a Supabase, envío de email, plantillas HTML, validación.
+- **Plantillas de email**: HTML con tablas (compatibilidad Gmail/Outlook/Apple Mail), branding editorial: Fraunces serif + Inter sans, wordmark como texto, barra carmesí `#B21C40`, responsive <600px, dark mode support.
+- **Protección anti-bot**: campo honeypot (`website`) en el form + rate limiting por IP (3/min).
+- **Webhook de Resend**: verificación Svix HMAC-SHA256. Actualiza status del suscriptor en bounces/complaints. Registra eventos en `email_events`.
+- **Env vars** (en Cloudflare Pages → Settings → Environment variables):
+  - `SUPABASE_SERVICE_ROLE_KEY` — clave service_role de Supabase (NO la anon key)
+  - `RESEND_API_KEY` — API key de Resend
+  - `RESEND_WEBHOOK_SECRET` — Svix signing secret (formato `whsec_...`)
+  - `SITE_URL` — defaults a `https://ecosdigitales.com`
+- **Dominio**: `ecosdigitales.com` debe estar verificado en Resend (DKIM/SPF/DMARC) para enviar desde `newsletter@ecosdigitales.com`.
+
+### Prensa
+- Página pública `/prensa` con guidelines editoriales, checklist de envío, FAQ y contacto.
+- Email: `prensa@ecosdigitales.com`. Click-to-copy con toast en todas las instancias (componente `PressContactBlock`).
+
+### Footer
+- Dark mode forzado (`bg-zinc-950`) con colores hardcoded (no CSS variables) para mantener el fondo oscuro independiente del tema del sitio.
+- 4 bloques: logo+social, newsletter form, 3 columnas de links, copyright.
+- Logo invertido con CSS filter `brightness-0 invert`.
+
 ### OG meta tags dinámicos
 - `functions/noticias/[slug].ts` intercepta requests de crawlers (FB, Twitter, WhatsApp, LinkedIn, Discord, Slack, IA bots) y devuelve HTML con OG tags específicos del artículo.
 - Usuarios humanos (Chrome/Safari/Firefox) reciben el SPA normal.
@@ -180,7 +226,9 @@ Los assets en `/public/` no llevan content-hash. Si cambia un asset crítico (ej
 
 ## 7. Convenciones de UI
 
-- **Tipografía**: sans default (Inter o similar). El serif (`var(--font-serif)`) se reserva para `.article-content` (cuerpo de notas).
+- **Paleta editorial** (emails y branding): carmesí `#B21C40` (primario), negro tinta `#1A1A1A`, gris medio `#4B5563`, gris claro `#9CA3AF`.
+- **Tipografía editorial** (emails): Fraunces (serif, titulares/wordmark), Inter (sans, cuerpo/UI). Fallbacks: Georgia, -apple-system.
+- **Tipografía web**: sans default (Inter o similar). El serif (`var(--font-serif)`) se reserva para `.article-content` (cuerpo de notas).
 - **Categorías** en cards: `text-muted-foreground` + `capitalize` (NO uppercase, NO azul).
 - **Fechas en cards**: helper `formatCardDate()` — formato `"d MMM"` (ej. "5 Mar"), nunca uppercase.
 - **Justificado**: el cuerpo de los artículos va `text-align: justify` con `hyphens: auto`. Los párrafos individuales pueden override con TipTap.
@@ -195,6 +243,8 @@ Los assets en `/public/` no llevan content-hash. Si cambia un asset crítico (ej
 - **No regenerar el sitemap a mano** — la function lo hace sola.
 - **No agregar OG/Twitter meta tags solo en React-Helmet** si querés que los lean los crawlers. React-Helmet es client-side; los crawlers necesitan SSR via Pages Functions (ver `functions/noticias/[slug].ts` como referencia).
 - **No commitear `.env`** — está en `.gitignore` aunque históricamente se filtró una vez (revisar antes de cada commit).
+- **No usar el cliente Supabase JS en Pages Functions** — las functions de newsletter usan `service_role` key via REST API directo (`fetch`). El cliente JS de `src/integrations/` es solo para el frontend (anon key).
+- **No instalar paquetes npm para Resend** — se usa la REST API via `fetch()` desde el edge runtime. Zero dependencies.
 - **No skipear hooks (`--no-verify`) ni firmas de commits** sin pedirlo explícitamente.
 
 ---
@@ -225,6 +275,6 @@ tail -f /tmp/claude-501/.../vite.output
 - **Reordenar posiciones en una edición** desde el admin (drag-and-drop). Hoy se hace via Supabase Studio. El UNIQUE constraint en `(edition_id, position)` complica el swap atómico — necesita un RPC.
 - **OG dinámico para `/ediciones/:slug`** (ver §6).
 - **Sindicación a redes sociales** vía n8n self-hosted al publicar una nota — workflow ya diseñado, falta deployar la instancia n8n. Ver historial de conversación.
-- **Newsletter / captura de emails** — antes de monetizar con ads (la métrica actual no justifica AdSense).
+- **Páginas pendientes**: `/sobre-nosotros` y `/equipo` (links en footer apuntan a `#` con TODO).
 - **Migrar `useArticles()` a server-side search** cuando crucemos las 5k notas publicadas (hoy 3.1k, carga todo en cliente).
 - **Recuperación del gap 2025**: 14 meses sin artículos publicados. No hay backup. Posible recuperación manual desde Instagram/LinkedIn de 2025.
