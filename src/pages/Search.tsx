@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoadingGrid } from "@/components/LoadingGrid";
 import { SEO } from "@/components/SEO";
-import { useArticles, type ArticleListing } from "@/hooks/useArticles";
+import { useArticles, useSearchArticles, type ArticleListing } from "@/hooks/useArticles";
 import { getExcerpt } from "@/lib/getExcerpt";
 import { formatCardDate } from "@/lib/formatCardDate";
 
@@ -51,12 +51,16 @@ const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   const [localQuery, setLocalQuery] = useState(initialQuery);
-  const { data: articles, isLoading } = useArticles();
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+  const { data: articles, isLoading: isLoadingRecent } = useArticles();
+  const { data: searchResults, isLoading: isSearching } = useSearchArticles(debouncedQuery);
 
-  // Debounced URL sync (300ms)
+  // Debounced URL + query sync (300ms)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (localQuery.trim()) {
+      const trimmed = localQuery.trim();
+      setDebouncedQuery(trimmed);
+      if (trimmed) {
         setSearchParams({ q: localQuery }, { replace: true });
       } else {
         setSearchParams({}, { replace: true });
@@ -83,24 +87,13 @@ const Search = () => {
     slug: article.slug,
   }), []);
 
+  const isLoading = isLoadingRecent || (debouncedQuery.length >= 2 && isSearching);
+
   const { matchingArticles, recentArticles } = useMemo(() => {
-    const q = localQuery.toLowerCase().trim();
-    const articleResults: SearchResult[] = [];
-
-    if (q && articles) {
-      articles.forEach((article: ArticleListing) => {
-        const matchesTitle = article.title.toLowerCase().includes(q);
-        const matchesCategory = article.category_name.toLowerCase().includes(q);
-        const matchesExcerpt = article.excerpt?.toLowerCase().includes(q);
-        if (matchesTitle || matchesCategory || matchesExcerpt) {
-          articleResults.push(toResult(article));
-        }
-      });
-    }
-
+    const results: SearchResult[] = (searchResults || []).map(toResult);
     const recent: SearchResult[] = (articles || []).slice(0, 6).map(toResult);
-    return { matchingArticles: articleResults, recentArticles: recent };
-  }, [localQuery, articles, toResult]);
+    return { matchingArticles: results, recentArticles: recent };
+  }, [searchResults, articles, toResult]);
 
   const hasQuery = localQuery.trim().length > 0;
   const showRecentArticles = hasQuery && matchingArticles.length === 0;

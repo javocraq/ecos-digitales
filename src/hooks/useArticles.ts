@@ -189,6 +189,32 @@ export const useArticleBySlug = (slug: string) => {
   });
 };
 
+export const useSearchArticles = (query: string) => {
+  const trimmed = query.trim();
+  return useQuery({
+    queryKey: ["articles-search", trimmed],
+    queryFn: async (): Promise<ArticleListing[]> => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select(LISTING_SELECT)
+        .eq("status", "published")
+        .not("published_at", "is", null)
+        .ilike("title", `%${trimmed}%`)
+        .order("published_at", { ascending: false })
+        .limit(50);
+
+      if (error) {
+        throw new Error(`Error searching articles: ${error.message}`);
+      }
+
+      return (data as ListingRow[]).map(mapListingRow);
+    },
+    enabled: trimmed.length >= 2,
+    staleTime: 1000 * 60 * 2,
+    retry: 1,
+  });
+};
+
 export const useCategories = () => {
   const { data: articles } = useArticles();
 
