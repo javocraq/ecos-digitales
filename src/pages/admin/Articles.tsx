@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Plus, ChevronLeft, ChevronRight, Search, Pencil, Trash2, ChevronUp, ChevronDown, Pin } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Search, Pencil, ChevronUp, ChevronDown, Pin, CheckCircle2, XCircle, X, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { ADMIN_BASE_PATH } from "@/config/admin";
@@ -21,9 +21,10 @@ interface DashboardArticle {
   is_pinned: boolean;
   pinned_order: number;
   categories: { name: string } | null;
+  authors: { name: string } | null;
 }
 
-type SortColumn = "title" | "category" | "published_at" | "updated_at" | "source" | "status";
+type SortColumn = "title" | "category" | "published_at" | "author" | "source" | "status";
 type SortDir = "asc" | "desc";
 
 const PAGE_SIZE = 20;
@@ -40,17 +41,33 @@ const Articles = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft" | "automatic" | "manual">("all");
-  const [deleteTarget, setDeleteTarget] = useState<DashboardArticle | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn>("published_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<null | "publish" | "unpublish" | "change_author">(null);
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkAuthorId, setBulkAuthorId] = useState<string>("");
+  const [authorsList, setAuthorsList] = useState<{ id: string; name: string }[]>([]);
+  const headerCheckboxRef = useRef<HTMLInputElement>(null);
+
+  // Fetch authors for the bulk-change-author selector
+  useEffect(() => {
+    supabase
+      .from("authors")
+      .select("id, name")
+      .eq("is_active", true)
+      .order("name")
+      .then(({ data }) => {
+        if (data) setAuthorsList(data);
+      });
+  }, []);
 
   const handleSort = (col: SortColumn) => {
     if (sortCol === col) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortCol(col);
-      setSortDir(col === "published_at" || col === "updated_at" ? "desc" : "asc");
+      setSortDir(col === "published_at" ? "desc" : "asc");
     }
     setPage(0);
   };
@@ -60,7 +77,7 @@ const Articles = () => {
 
     let query = supabase
       .from("articles")
-      .select("id, title, slug, status, source, published_at, updated_at, created_at, is_pinned, pinned_order, categories(name)", { count: "exact" });
+      .select("id, title, slug, status, source, published_at, updated_at, created_at, is_pinned, pinned_order, categories(name), authors(name)", { count: "exact" });
 
     if (filter === "published" || filter === "draft") {
       query = query.eq("status", filter);
@@ -74,8 +91,11 @@ const Articles = () => {
       query = query.ilike("title", `%${searchQuery.trim()}%`);
     }
 
-    // "category" uses the joined table; Supabase supports ordering by foreign column
-    const orderField = sortCol === "category" ? "categories(name)" : sortCol;
+    // "category"/"author" use joined tables; Supabase supports ordering by foreign column
+    const orderField =
+      sortCol === "category" ? "categories(name)"
+        : sortCol === "author" ? "authors(name)"
+        : sortCol;
     const ascending = sortDir === "asc";
 
     query = query.order(orderField, {
@@ -112,18 +132,109 @@ const Articles = () => {
     setPage(0);
   }, [searchQuery, filter]);
 
+  // Clear selection when the visible page/filter/search/sort changes
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, searchQuery, filter, sortCol, sortDir]);
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleting(true);
-    await supabase.from("articles").delete().eq("id", deleteTarget.id);
-    setDeleting(false);
-    setDeleteTarget(null);
-    fetchArticles();
+  const pinnedCount = articles.filter((a) => a.is_pinned).length;
+
+  // Header checkbox: indeterminate when partial selection
+  const visibleIds = useMemo(() => articles.map((a) => a.id), [articles]);
+  const selectedVisibleCount = visibleIds.filter((id) => selectedIds.has(id)).length;
+  const allVisibleSelected = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+  const someVisibleSelected = selectedVisibleCount > 0 && !allVisibleSelected;
+
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.indeterminate = someVisibleSelected;
+    }
+  }, [someVisibleSelected]);
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
-  const pinnedCount = articles.filter((a) => a.is_pinned).length;
+  const toggleSelectAllVisible = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        visibleIds.forEach((id) => next.delete(id));
+      } else {
+        visibleIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const runBulk = async () => {
+    if (!bulkAction || selectedIds.size === 0) return;
+    if (bulkAction === "change_author" && !bulkAuthorId) {
+      toast.error("Seleccioná un autor primero");
+      return;
+    }
+    setBulkRunning(true);
+    const ids = Array.from(selectedIds);
+
+    const fail = (msg: string) => {
+      setBulkRunning(false);
+      toast.error("Error en acción masiva: " + msg);
+    };
+
+    if (bulkAction === "change_author") {
+      const { error } = await supabase
+        .from("articles")
+        .update({ author_id: bulkAuthorId })
+        .in("id", ids);
+      if (error) return fail(error.message);
+    } else if (bulkAction === "publish") {
+      // Para rows sin published_at: setear ahora + status. Para rows con fecha: solo flip de status.
+      const r1 = await supabase
+        .from("articles")
+        .update({ status: "published", published_at: new Date().toISOString() })
+        .in("id", ids)
+        .is("published_at", null);
+      if (r1.error) return fail(r1.error.message);
+
+      const r2 = await supabase
+        .from("articles")
+        .update({ status: "published" })
+        .in("id", ids)
+        .not("published_at", "is", null);
+      if (r2.error) return fail(r2.error.message);
+    } else if (bulkAction === "unpublish") {
+      const { error } = await supabase
+        .from("articles")
+        .update({ status: "draft" })
+        .in("id", ids);
+      if (error) return fail(error.message);
+    }
+
+    setBulkRunning(false);
+
+    const plural = ids.length !== 1 ? "s" : "";
+    let msg = "";
+    if (bulkAction === "publish") msg = `${ids.length} artículo${plural} publicado${plural}`;
+    else if (bulkAction === "unpublish") msg = `${ids.length} artículo${plural} despublicado${plural}`;
+    else if (bulkAction === "change_author") {
+      const authorName = authorsList.find((a) => a.id === bulkAuthorId)?.name || "autor";
+      msg = `${ids.length} artículo${plural} reasignado${plural} a ${authorName}`;
+    }
+    toast.success(msg);
+    setBulkAction(null);
+    setBulkAuthorId("");
+    clearSelection();
+    fetchArticles();
+  };
 
   const handleTogglePin = async (article: DashboardArticle) => {
     if (!article.is_pinned && pinnedCount >= 3) {
@@ -152,11 +263,6 @@ const Articles = () => {
       )
     );
     toast.success(newPinned ? "Nota fijada" : "Nota desfijada");
-  };
-
-  const wasEdited = (article: DashboardArticle) => {
-    if (!article.updated_at || !article.created_at) return false;
-    return article.updated_at !== article.created_at;
   };
 
   return (
@@ -210,6 +316,51 @@ const Articles = () => {
           {searchInput.trim() && ` con "${searchInput.trim()}"`}
         </p>
 
+        {/* Bulk actions toolbar */}
+        {selectedIds.size > 0 && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+            <div className="flex items-center gap-2 text-sm">
+              <button
+                type="button"
+                onClick={clearSelection}
+                className="inline-flex items-center justify-center h-6 w-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                title="Limpiar selección"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+              <span className="font-medium text-foreground">
+                {selectedIds.size} seleccionado{selectedIds.size !== 1 ? "s" : ""}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setBulkAction("change_author")}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-blue-200 bg-white text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+              >
+                <UserCog className="h-3.5 w-3.5" />
+                Modificar autor
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkAction("publish")}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-emerald-200 bg-white text-sm font-medium text-emerald-700 hover:bg-emerald-50 transition-colors"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Publicar
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkAction("unpublish")}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-amber-200 bg-white text-sm font-medium text-amber-700 hover:bg-amber-50 transition-colors"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+                Despublicar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           {/* Desktop table */}
@@ -217,35 +368,56 @@ const Articles = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
+                  <th className="text-center font-medium text-muted-foreground px-2 py-3 w-10">
+                    <input
+                      ref={headerCheckboxRef}
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      onChange={toggleSelectAllVisible}
+                      aria-label="Seleccionar todos los visibles"
+                      className="h-4 w-4 rounded border-neutral-300 cursor-pointer accent-primary"
+                    />
+                  </th>
                   <th className="text-center font-medium text-muted-foreground px-2 py-3 w-12">
                     <Pin className="h-3.5 w-3.5 mx-auto" />
                   </th>
                   <SortableHeader col="title" label="Título" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} />
                   <SortableHeader col="category" label="Categoría" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} className="w-40" />
                   <SortableHeader col="published_at" label="Publicado" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} className="w-32" />
-                  <SortableHeader col="updated_at" label="Editado" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} className="w-32" />
+                  <SortableHeader col="author" label="Autor" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} className="w-48" />
                   <SortableHeader col="status" label="Estado" sortCol={sortCol} sortDir={sortDir} onSort={handleSort} className="w-28" />
-                  <th className="text-right font-medium text-muted-foreground px-4 py-3 w-28">Acciones</th>
+                  <th className="text-right font-medium text-muted-foreground px-4 py-3 w-24">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i} className="border-b border-border last:border-0">
-                      <td colSpan={7} className="px-4 py-4">
+                      <td colSpan={8} className="px-4 py-4">
                         <div className="h-4 w-full rounded bg-muted animate-pulse" />
                       </td>
                     </tr>
                   ))
                 ) : articles.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                       No se encontraron artículos
                     </td>
                   </tr>
                 ) : (
-                  articles.map((article) => (
-                    <tr key={article.id} className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${article.is_pinned ? "bg-amber-500/5" : ""}`}>
+                  articles.map((article) => {
+                    const isSelected = selectedIds.has(article.id);
+                    return (
+                    <tr key={article.id} className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${isSelected ? "bg-primary/5" : article.is_pinned ? "bg-amber-500/5" : ""}`}>
+                      <td className="px-2 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectOne(article.id)}
+                          aria-label={`Seleccionar ${article.title}`}
+                          className="h-4 w-4 rounded border-neutral-300 cursor-pointer accent-primary"
+                        />
+                      </td>
                       <td className="px-2 py-3 text-center">
                         <button
                           type="button"
@@ -278,10 +450,8 @@ const Articles = () => {
                           ? format(new Date(article.published_at), "d MMM yyyy", { locale: es })
                           : "—"}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {wasEdited(article) && article.updated_at
-                          ? format(new Date(article.updated_at), "d MMM yyyy", { locale: es })
-                          : "—"}
+                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap truncate" title={article.authors?.name || ""}>
+                        {article.authors?.name || "—"}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={article.status} />
@@ -295,16 +465,11 @@ const Articles = () => {
                             <Pencil className="h-3.5 w-3.5" />
                             Editar
                           </Link>
-                          <button
-                            onClick={() => setDeleteTarget(article)}
-                            className="inline-flex items-center h-8 px-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -324,9 +489,18 @@ const Articles = () => {
                 No se encontraron artículos
               </div>
             ) : (
-              articles.map((article) => (
-                <div key={article.id} className={`p-4 ${article.is_pinned ? "bg-amber-500/5" : ""}`}>
+              articles.map((article) => {
+                const isSelected = selectedIds.has(article.id);
+                return (
+                <div key={article.id} className={`p-4 ${isSelected ? "bg-primary/5" : article.is_pinned ? "bg-amber-500/5" : ""}`}>
                   <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelectOne(article.id)}
+                      aria-label={`Seleccionar ${article.title}`}
+                      className="mt-1 h-4 w-4 rounded border-neutral-300 cursor-pointer accent-primary shrink-0"
+                    />
                     <button
                       type="button"
                       onClick={() => handleTogglePin(article)}
@@ -355,11 +529,11 @@ const Articles = () => {
                         ? format(new Date(article.published_at), "d MMM yyyy", { locale: es })
                         : "—"}
                     </span>
-                    {wasEdited(article) && article.updated_at && (
+                    {article.authors?.name && (
                       <>
                         <span className="text-muted-foreground/40">·</span>
                         <span className="text-xs text-muted-foreground">
-                          Ed. {format(new Date(article.updated_at), "d MMM yyyy", { locale: es })}
+                          {article.authors.name}
                         </span>
                       </>
                     )}
@@ -373,16 +547,10 @@ const Articles = () => {
                       <Pencil className="h-3.5 w-3.5" />
                       Editar
                     </Link>
-                    <button
-                      onClick={() => setDeleteTarget(article)}
-                      className="inline-flex items-center gap-1 h-8 px-3 rounded-md border border-border text-sm text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Eliminar
-                    </button>
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
@@ -415,28 +583,88 @@ const Articles = () => {
         )}
       </main>
 
-      {/* Delete confirmation modal */}
-      {deleteTarget && (
+      {/* Bulk confirmation modal */}
+      {bulkAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => !deleting && setDeleteTarget(null)} />
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => {
+              if (bulkRunning) return;
+              setBulkAction(null);
+              setBulkAuthorId("");
+            }}
+          />
           <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-foreground mb-2">Eliminar artículo</h2>
-            <p className="text-sm text-muted-foreground mb-1">¿Estás seguro de que querés eliminar este artículo?</p>
-            <p className="text-sm font-medium text-foreground mb-6 line-clamp-2">"{deleteTarget.title}"</p>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              {bulkAction === "publish" && "Publicar artículos"}
+              {bulkAction === "unpublish" && "Despublicar artículos"}
+              {bulkAction === "change_author" && "Reasignar autor"}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              {bulkAction === "publish" && (
+                <>
+                  Se publicarán <strong>{selectedIds.size}</strong> artículo{selectedIds.size !== 1 ? "s" : ""}.
+                  Los que no tengan fecha se publicarán con la fecha actual.
+                </>
+              )}
+              {bulkAction === "unpublish" && (
+                <>
+                  Se pasarán a borrador <strong>{selectedIds.size}</strong> artículo{selectedIds.size !== 1 ? "s" : ""}.
+                  Dejarán de ser visibles en el sitio.
+                </>
+              )}
+              {bulkAction === "change_author" && (
+                <>
+                  Elegí el nuevo autor para los <strong>{selectedIds.size}</strong> artículo{selectedIds.size !== 1 ? "s" : ""} seleccionado{selectedIds.size !== 1 ? "s" : ""}.
+                </>
+              )}
+            </p>
+
+            {bulkAction === "change_author" && (
+              <div className="mb-6">
+                <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
+                  Autor
+                </label>
+                <select
+                  value={bulkAuthorId}
+                  onChange={(e) => setBulkAuthorId(e.target.value)}
+                  className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 text-sm text-neutral-800 focus:bg-white focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-900/5 transition-all"
+                >
+                  <option value="">— Seleccionar autor —</option>
+                  {authorsList.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setDeleteTarget(null)}
-                disabled={deleting}
+                type="button"
+                onClick={() => {
+                  setBulkAction(null);
+                  setBulkAuthorId("");
+                }}
+                disabled={bulkRunning}
                 className="h-9 px-4 rounded-lg border border-border text-sm font-medium hover:bg-secondary transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="h-9 px-4 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium hover:bg-destructive/90 transition-colors disabled:opacity-50"
+                type="button"
+                onClick={runBulk}
+                disabled={bulkRunning || (bulkAction === "change_author" && !bulkAuthorId)}
+                className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50"
               >
-                {deleting ? "Eliminando..." : "Eliminar"}
+                {bulkRunning
+                  ? "Procesando..."
+                  : bulkAction === "publish"
+                    ? "Publicar"
+                    : bulkAction === "unpublish"
+                      ? "Despublicar"
+                      : "Reasignar"}
               </button>
             </div>
           </div>

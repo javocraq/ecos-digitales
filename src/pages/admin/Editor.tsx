@@ -148,6 +148,8 @@ const Editor = () => {
 
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-resize title textarea
@@ -383,6 +385,22 @@ const Editor = () => {
     toast.success("Artículo despublicado — ahora es borrador");
   }, [id]);
 
+  const handleDelete = useCallback(async () => {
+    if (!id) return;
+    setDeleting(true);
+    const { error } = await supabase.from("articles").delete().eq("id", id);
+    setDeleting(false);
+
+    if (error) {
+      toast.error("Error al eliminar: " + error.message);
+      return;
+    }
+
+    dirtyRef.current = false;
+    toast.success("Artículo eliminado");
+    navigate(`${ADMIN_BASE_PATH}/articulos`);
+  }, [id, navigate]);
+
   const handleSave = useCallback(
     async (action: "draft" | "publish") => {
       if (!validate()) {
@@ -488,6 +506,18 @@ const Editor = () => {
           </Link>
 
           <div className="flex items-center gap-3">
+            {isEdit && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                disabled={saving || deleting}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-medium text-neutral-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 disabled:opacity-50"
+                title="Eliminar artículo"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Eliminar</span>
+              </button>
+            )}
             {isEdit && isPublished && (
               <button
                 onClick={handleUnpublish}
@@ -523,25 +553,23 @@ const Editor = () => {
 
       <main className="mx-auto max-w-[900px] px-6 py-10">
         <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.03)] p-8 sm:p-10 lg:p-12 space-y-10">
-          {/* Automatic source badge */}
-          {isAutomatic && (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-amber-50 text-amber-700 ring-1 ring-amber-200/50">
-                Artículo automático
-              </span>
-            </div>
-          )}
-
-          {/* Status badge */}
-          {isEdit && (
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                isPublished
-                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50"
-                  : "bg-neutral-100 text-neutral-500 ring-1 ring-neutral-200/50"
-              }`}>
-                {isPublished ? "Publicado" : "Borrador"}
-              </span>
+          {/* Badges: source + status */}
+          {(isAutomatic || isEdit) && (
+            <div className="flex flex-wrap items-center gap-2">
+              {isAutomatic && (
+                <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-amber-50 text-amber-700 ring-1 ring-amber-200/50">
+                  Artículo automático
+                </span>
+              )}
+              {isEdit && (
+                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                  isPublished
+                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50"
+                    : "bg-neutral-100 text-neutral-500 ring-1 ring-neutral-200/50"
+                }`}>
+                  {isPublished ? "Publicado" : "Borrador"}
+                </span>
+              )}
             </div>
           )}
 
@@ -554,10 +582,9 @@ const Editor = () => {
               onInput={resizeTitle}
               placeholder="Título de la nota"
               rows={1}
-              className={`w-full bg-transparent text-[2rem] sm:text-[2.25rem] font-bold leading-[1.15] tracking-tight text-neutral-900 placeholder:text-neutral-300 focus:outline-none resize-none overflow-hidden font-serif ${
+              className={`w-full bg-transparent text-[2rem] sm:text-[2.25rem] font-bold leading-[1.15] tracking-tight text-neutral-900 placeholder:text-neutral-300 focus:outline-none resize-none overflow-hidden font-sans ${
                 errors.title ? "placeholder:text-red-300" : ""
               }`}
-              style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
             />
             {errors.title && (
               <p className="text-sm text-red-500 mt-2">{errors.title}</p>
@@ -834,6 +861,45 @@ const Editor = () => {
           )}
         </div>
       </main>
+
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => !deleting && setShowDeleteModal(false)}
+          />
+          <div className="relative w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-2">
+              Eliminar artículo
+            </h2>
+            <p className="text-sm text-neutral-500 mb-1">
+              ¿Estás seguro de que querés eliminar este artículo? Esta acción no se puede deshacer.
+            </p>
+            <p className="text-sm font-medium text-neutral-900 mb-6 line-clamp-2">
+              "{title || "(sin título)"}"
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="h-9 px-4 rounded-lg border border-neutral-200 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="h-9 px-4 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {deleting ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

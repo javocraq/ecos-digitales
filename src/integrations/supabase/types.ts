@@ -307,6 +307,10 @@ export type Database = {
           featured_video_title: string | null
           featured_video_description: string | null
           is_video_active: boolean
+          banner_image_url: string | null
+          banner_link_url: string | null
+          banner_alt_text: string | null
+          is_banner_active: boolean
           updated_at: string
           created_at: string
         }
@@ -316,6 +320,10 @@ export type Database = {
           featured_video_title?: string | null
           featured_video_description?: string | null
           is_video_active?: boolean
+          banner_image_url?: string | null
+          banner_link_url?: string | null
+          banner_alt_text?: string | null
+          is_banner_active?: boolean
           updated_at?: string
           created_at?: string
         }
@@ -325,6 +333,10 @@ export type Database = {
           featured_video_title?: string | null
           featured_video_description?: string | null
           is_video_active?: boolean
+          banner_image_url?: string | null
+          banner_link_url?: string | null
+          banner_alt_text?: string | null
+          is_banner_active?: boolean
           updated_at?: string
           created_at?: string
         }

@@ -32,6 +32,7 @@ const AdminArticles = lazy(() => import("./pages/admin/Articles"));
 const AdminEditor = lazy(() => import("./pages/admin/Editor"));
 const AdminEditions = lazy(() => import("./pages/admin/Editions"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const AdminBanner = lazy(() => import("./pages/admin/Banner"));
 
 // Page loading fallback
 const PageLoader = () => (
@@ -85,6 +86,7 @@ const App = () => (
               <Route path={`${ADMIN_BASE_PATH}/editor/:id`} element={<ProtectedRoute><AdminEditor /></ProtectedRoute>} />
               <Route path={`${ADMIN_BASE_PATH}/ediciones`} element={<ProtectedRoute><AdminEditions /></ProtectedRoute>} />
               <Route path={`${ADMIN_BASE_PATH}/video`} element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+              <Route path={`${ADMIN_BASE_PATH}/banner`} element={<ProtectedRoute><AdminBanner /></ProtectedRoute>} />
               {/* alias legacy: /configuracion → /video (por si algún bookmark viejo) */}
               <Route path={`${ADMIN_BASE_PATH}/configuracion`} element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 

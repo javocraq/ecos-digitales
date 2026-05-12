@@ -8,6 +8,7 @@ import {
   PanelLeftOpen,
   LogOut,
   Video as VideoIcon,
+  Megaphone,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ADMIN_BASE_PATH } from "@/config/admin";
@@ -44,6 +45,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       to: `${ADMIN_BASE_PATH}/video`,
       icon: VideoIcon,
       label: "Video",
+    },
+    {
+      to: `${ADMIN_BASE_PATH}/banner`,
+      icon: Megaphone,
+      label: "Banner",
     },
     {
       to: `${ADMIN_BASE_PATH}/dashboard`,

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { TopBanner } from "@/components/TopBanner";
 
 interface HeaderProps {
   showShare?: boolean;
@@ -58,6 +59,8 @@ export const Header = ({ showShare = false }: HeaderProps) => {
   }, [isSearchOpen, searchQuery]);
 
   return (
+    <>
+    <TopBanner />
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between gap-4">
         {/* Left: Logo */}
@@ -146,5 +149,6 @@ export const Header = ({ showShare = false }: HeaderProps) => {
         </div>
       </div>
     </header>
+    </>
   );
 };

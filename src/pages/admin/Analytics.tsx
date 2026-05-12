@@ -27,28 +27,27 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
-// Slack brand palette
-const SLACK = {
-  aubergine: "#4A154B",
-  blue: "#36C5F0",
-  green: "#2EB67D",
-  yellow: "#ECB22E",
-  red: "#E01E5A",
-  // additional tones for category donut overflow
-  aubergineDark: "#350D36",
-  blueDark: "#1D9BD1",
-  greenDark: "#1F8554",
+// Ecos Digitales — paleta monocromática carmesí (sin negros ni grises en charts)
+const ECOS = {
+  carmesi: "#B21C40",        // primario
+  vino: "#7A1330",           // vino oscuro
+  bordeaux: "#5C0A1E",       // rojo profundo
+  marsala: "#3F0613",        // marsala (más oscuro)
+  carmesiLight: "#D63A5F",   // carmesí claro
+  rosaPalo: "#E8839D",       // rosa palo
+  rosaClaro: "#F1B5C2",      // rosa claro
+  carmesiSoft: "#A85C6D",    // carmesí desaturado
 };
 
 const CATEGORY_COLORS = [
-  SLACK.aubergine,
-  SLACK.blue,
-  SLACK.green,
-  SLACK.yellow,
-  SLACK.red,
-  SLACK.aubergineDark,
-  SLACK.blueDark,
-  SLACK.greenDark,
+  ECOS.carmesi,
+  ECOS.vino,
+  ECOS.carmesiLight,
+  ECOS.bordeaux,
+  ECOS.rosaPalo,
+  ECOS.marsala,
+  ECOS.carmesiSoft,
+  ECOS.rosaClaro,
 ];
 
 interface ChartArticle {
@@ -84,8 +83,8 @@ const Analytics = () => {
   const [counts, setCounts] = useState({
     totalPublished: 0,
     publishedThisMonth: 0,
-    publishedLastMonth: 0,
-    publishedThisWeek: 0,
+    publishedThisMonthAI: 0,
+    publishedThisMonthHuman: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -96,15 +95,13 @@ const Analytics = () => {
 
       const now = new Date();
       const monthStartIso = startOfMonth(now).toISOString();
-      const lastMonthStartIso = startOfMonth(subMonths(now, 1)).toISOString();
-      const sevenDaysAgoIso = subDays(now, 7).toISOString();
 
       // Counts via head:true count queries — return the real total without pulling rows
       const [
         totalRes,
         thisMonthRes,
-        lastMonthRes,
-        thisWeekRes,
+        thisMonthAIRes,
+        thisMonthHumanRes,
         chartRows,
       ] = await Promise.all([
         supabase
@@ -120,13 +117,14 @@ const Analytics = () => {
           .from("articles")
           .select("id", { count: "exact", head: true })
           .eq("status", "published")
-          .gte("published_at", lastMonthStartIso)
-          .lt("published_at", monthStartIso),
+          .eq("source", "AI")
+          .gte("published_at", monthStartIso),
         supabase
           .from("articles")
           .select("id", { count: "exact", head: true })
           .eq("status", "published")
-          .gte("published_at", sevenDaysAgoIso),
+          .eq("source", "Human")
+          .gte("published_at", monthStartIso),
         // Chart rows: all published articles, projecting only the fields we need
         fetchAllRows<ChartArticle>(() =>
           supabase
@@ -142,8 +140,8 @@ const Analytics = () => {
       setCounts({
         totalPublished: totalRes.count ?? 0,
         publishedThisMonth: thisMonthRes.count ?? 0,
-        publishedLastMonth: lastMonthRes.count ?? 0,
-        publishedThisWeek: thisWeekRes.count ?? 0,
+        publishedThisMonthAI: thisMonthAIRes.count ?? 0,
+        publishedThisMonthHuman: thisMonthHumanRes.count ?? 0,
       });
       setChartArticles(chartRows);
       setLoading(false);
@@ -226,8 +224,11 @@ const Analytics = () => {
   }, [chartArticles]);
 
   const categoryData = useMemo(() => {
+    const monthStart = startOfMonth(new Date()).getTime();
     const counts = new Map<string, number>();
     for (const a of chartArticles) {
+      if (!a.published_at) continue;
+      if (new Date(a.published_at).getTime() < monthStart) continue;
       const name = a.categories?.name || "—";
       counts.set(name, (counts.get(name) || 0) + 1);
     }
@@ -241,7 +242,7 @@ const Analytics = () => {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-neutral-900 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#B21C40] border-t-transparent" />
         </div>
       </AdminLayout>
     );
@@ -268,27 +269,14 @@ const Analytics = () => {
           <KpiCard
             label="Este mes"
             value={counts.publishedThisMonth}
-            hint={
-              counts.publishedLastMonth > 0
-                ? `${
-                    counts.publishedThisMonth >= counts.publishedLastMonth ? "+" : ""
-                  }${(
-                    ((counts.publishedThisMonth - counts.publishedLastMonth) /
-                      counts.publishedLastMonth) *
-                    100
-                  ).toFixed(0)}% vs mes anterior`
-                : undefined
-            }
           />
           <KpiCard
-            label="Mes anterior"
-            value={counts.publishedLastMonth}
-            hint={format(subMonths(new Date(), 1), "MMMM yyyy", { locale: es })}
+            label="Agente IA"
+            value={counts.publishedThisMonthAI}
           />
           <KpiCard
-            label="Esta semana"
-            value={counts.publishedThisWeek}
-            hint="últimos 7 días"
+            label="Humano"
+            value={counts.publishedThisMonthHuman}
           />
         </div>
 
@@ -326,11 +314,11 @@ const Analytics = () => {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                cursor={{ fill: "rgba(74,21,75,0.06)" }}
+                cursor={{ fill: "rgba(178,28,64,0.06)" }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} iconType="circle" />
-              <Bar dataKey="Humano" stackId="a" fill={SLACK.aubergine} />
-              <Bar dataKey="AI" stackId="a" fill={SLACK.blue} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Humano" stackId="a" fill={ECOS.carmesi} />
+              <Bar dataKey="AI" stackId="a" fill={ECOS.rosaPalo} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Panel>
@@ -367,16 +355,16 @@ const Analytics = () => {
                 <Line
                   type="monotone"
                   dataKey="publicadas"
-                  stroke={SLACK.green}
+                  stroke={ECOS.carmesi}
                   strokeWidth={2.5}
-                  dot={{ r: 3, fill: SLACK.green }}
+                  dot={{ r: 3, fill: ECOS.carmesi }}
                   activeDot={{ r: 5 }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </Panel>
 
-          <Panel title="Distribución por categoría" subtitle="Top 8 categorías publicadas">
+          <Panel title="Distribución por categoría" subtitle="Top 8 categorías de este mes">
             {categoryData.length === 0 ? (
               <EmptyState />
             ) : (
@@ -428,16 +416,21 @@ const KpiCard = ({
   label,
   value,
   hint,
+  breakdown,
 }: {
   label: string;
   value: string | number;
   hint?: string;
+  breakdown?: string;
 }) => (
   <div className="rounded-xl border border-black/[0.06] bg-white p-4">
     <div className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">
       {label}
     </div>
     <div className="mt-2 text-2xl font-bold text-neutral-900 tabular-nums">{value}</div>
+    {breakdown && (
+      <div className="text-[11px] font-medium text-[#B21C40] mt-1">{breakdown}</div>
+    )}
     {hint && <div className="text-[11px] text-neutral-400 mt-0.5">{hint}</div>}
   </div>
 );
