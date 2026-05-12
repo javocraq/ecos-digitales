@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Linkedin, Youtube, Instagram } from "lucide-react";
-import { PressContactBlock } from "@/components/PressContactBlock";
 import { NewsletterForm } from "@/components/NewsletterForm";
 
 const SOCIAL_LINKS = [
@@ -89,9 +88,9 @@ export const Footer = () => {
         </div>
       </div>
 
-      {/* ── Bloque 3: Tres columnas ─────────────────────────── */}
+      {/* ── Bloque 3: Dos columnas ──────────────────────────── */}
       <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:gap-x-10 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:gap-x-10">
           {/* Col 1 — Ediciones */}
           <div>
             <FooterColumnHeader>Ediciones</FooterColumnHeader>
@@ -110,12 +109,6 @@ export const Footer = () => {
               <FooterLink to="/equipo">Equipo editorial</FooterLink>
               <FooterLink to="/prensa">Envía tu nota de prensa</FooterLink>
             </nav>
-          </div>
-
-          {/* Col 3 — Contacto */}
-          <div>
-            <FooterColumnHeader>Contacto</FooterColumnHeader>
-            <PressContactBlock variant="footer" />
           </div>
         </div>
       </div>
