@@ -1,8 +1,16 @@
 import { useState, useCallback } from "react";
+import { cn } from "@/lib/utils";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export const NewsletterForm = () => {
+interface NewsletterFormProps {
+  /** Visual variant: "dark" for the footer, "light" for standalone pages */
+  variant?: "dark" | "light";
+  /** Attribution source stored in the database */
+  source?: string;
+}
+
+export const NewsletterForm = ({ variant = "dark", source = "footer" }: NewsletterFormProps) => {
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -28,7 +36,7 @@ export const NewsletterForm = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: trimmed,
-            source: "footer",
+            source,
             ...(honeypot ? { website: honeypot } : {}),
           }),
         });
@@ -54,16 +62,16 @@ export const NewsletterForm = () => {
   return (
     <div>
       {status === "success" ? (
-        <p className="text-sm text-emerald-400" role="status">
+        <p className={cn("text-sm", variant === "dark" ? "text-emerald-400" : "text-emerald-600")} role="status">
           {message}
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-          <label htmlFor="footer-newsletter-email" className="sr-only">
+          <label htmlFor={`${source}-newsletter-email`} className="sr-only">
             Tu email
           </label>
           <input
-            id="footer-newsletter-email"
+            id={`${source}-newsletter-email`}
             type="email"
             placeholder="tu@email.com"
             value={email}
@@ -72,7 +80,12 @@ export const NewsletterForm = () => {
               if (status === "error") setStatus("idle");
             }}
             required
-            className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 transition-colors focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+            className={cn(
+              "flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors focus:outline-none focus:ring-1",
+              variant === "dark"
+                ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500 focus:ring-zinc-500"
+                : "border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary",
+            )}
           />
           {/* Honeypot — oculto para humanos, visible para bots */}
           <input
@@ -88,14 +101,19 @@ export const NewsletterForm = () => {
           <button
             type="submit"
             disabled={status === "loading"}
-            className="shrink-0 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-zinc-950 transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+            className={cn(
+              "shrink-0 rounded-lg px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              variant === "dark"
+                ? "bg-white text-zinc-950 focus-visible:ring-zinc-400 focus-visible:ring-offset-zinc-950"
+                : "bg-foreground text-background focus-visible:ring-primary focus-visible:ring-offset-background",
+            )}
           >
-            {status === "loading" ? "Enviando…" : "Suscribirme"}
+            {status === "loading" ? "Enviando..." : "Suscribirme"}
           </button>
         </form>
       )}
       {status === "error" && message && (
-        <p className="mt-2 text-xs text-red-400" role="alert">
+        <p className={cn("mt-2 text-xs", variant === "dark" ? "text-red-400" : "text-red-500")} role="alert">
           {message}
         </p>
       )}
