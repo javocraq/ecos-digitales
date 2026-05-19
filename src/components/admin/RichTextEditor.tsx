@@ -28,6 +28,7 @@ import {
   Plus,
   Trash2,
   Twitter,
+  Youtube,
   Copy,
   Check,
   Lightbulb,
@@ -39,6 +40,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TweetEmbed } from "./TweetEmbedNode";
+import { YoutubeEmbed, extractYoutubeId } from "./YoutubeEmbedNode";
 import { Callout } from "./CalloutNode";
 
 interface RichTextEditorProps {
@@ -113,6 +115,8 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
   const [showTableMenu, setShowTableMenu] = useState(false);
   const [showTweetPopup, setShowTweetPopup] = useState(false);
   const [tweetUrl, setTweetUrl] = useState("");
+  const [showYoutubePopup, setShowYoutubePopup] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const imageInputRef = useRef<HTMLInputElement>(null);
   const tableMenuRef = useRef<HTMLDivElement>(null);
 
@@ -145,6 +149,7 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
       TableCell,
       TableHeader,
       TweetEmbed,
+      YoutubeEmbed,
       Callout,
     ],
     content,
@@ -262,6 +267,27 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
     setShowTweetPopup(false);
     toast.success("Tweet insertado");
   }, [editor, tweetUrl]);
+
+  const handleYoutubeInsert = useCallback(() => {
+    if (!editor || !youtubeUrl.trim()) return;
+    const url = youtubeUrl.trim();
+    const videoId = extractYoutubeId(url);
+    if (!videoId) {
+      toast.error("URL de YouTube inválida. Ejemplos: youtu.be/ID, youtube.com/watch?v=ID, /shorts/ID");
+      return;
+    }
+    editor
+      .chain()
+      .focus()
+      .insertContent([
+        { type: "youtubeEmbed", attrs: { src: url, videoId } },
+        { type: "paragraph" },
+      ])
+      .run();
+    setYoutubeUrl("");
+    setShowYoutubePopup(false);
+    toast.success("Video de YouTube insertado");
+  }, [editor, youtubeUrl]);
 
   if (!editor) return null;
 
@@ -572,6 +598,43 @@ export const RichTextEditor = ({ content, onUpdate }: RichTextEditorProps) => {
                 />
                 <button
                   onClick={handleTweetInsert}
+                  className="h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors duration-200"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* YouTube embed */}
+        <div className="relative">
+          <ToolbarButton
+            active={false}
+            onClick={() => {
+              setYoutubeUrl("");
+              setShowYoutubePopup(!showYoutubePopup);
+            }}
+            title="Insertar video de YouTube"
+          >
+            <Youtube className="h-4 w-4" />
+          </ToolbarButton>
+
+          {showYoutubePopup && (
+            <div className="absolute left-0 top-full mt-2 z-50 w-80 rounded-xl border border-neutral-200 bg-white p-3 shadow-lg">
+              <p className="text-xs text-neutral-500 mb-2">Pegá la URL del video de YouTube</p>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleYoutubeInsert()}
+                  placeholder="https://youtu.be/... o /watch?v=..."
+                  autoFocus
+                  className="h-8 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 text-sm focus:bg-white focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-900/5 transition-all duration-200"
+                />
+                <button
+                  onClick={handleYoutubeInsert}
                   className="h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors duration-200"
                 >
                   OK
