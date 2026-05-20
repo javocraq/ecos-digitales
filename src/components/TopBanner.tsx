@@ -13,7 +13,7 @@ export const TopBanner = () => {
       <img
         src={banner.imageUrl}
         alt={banner.altText}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
         loading="eager"
       />
     </div>

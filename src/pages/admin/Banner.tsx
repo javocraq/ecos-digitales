@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
-import { Save, Loader2, Megaphone, ExternalLink } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Save, Loader2, Megaphone, UploadCloud, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,14 +8,12 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 interface BannerSettings {
   banner_image_url: string;
   banner_link_url: string;
-  banner_alt_text: string;
   is_banner_active: boolean;
 }
 
 const EMPTY: BannerSettings = {
   banner_image_url: "",
   banner_link_url: "",
-  banner_alt_text: "",
   is_banner_active: false,
 };
 
@@ -35,13 +33,15 @@ const Banner = () => {
   const [form, setForm] = useState<BannerSettings>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("site_settings")
-        .select("banner_image_url, banner_link_url, banner_alt_text, is_banner_active")
+        .select("banner_image_url, banner_link_url, is_banner_active")
         .maybeSingle();
 
       if (error) {
@@ -53,7 +53,6 @@ const Banner = () => {
       const loaded: BannerSettings = {
         banner_image_url: data?.banner_image_url ?? "",
         banner_link_url: data?.banner_link_url ?? "",
-        banner_alt_text: data?.banner_alt_text ?? "",
         is_banner_active: data?.is_banner_active ?? false,
       };
       setInitial(loaded);
@@ -66,19 +65,40 @@ const Banner = () => {
   const isDirty =
     form.banner_image_url !== initial.banner_image_url ||
     form.banner_link_url !== initial.banner_link_url ||
-    form.banner_alt_text !== initial.banner_alt_text ||
     form.is_banner_active !== initial.is_banner_active;
 
-  const imageUrlInvalid =
-    form.banner_image_url.trim().length > 0 && !isValidUrl(form.banner_image_url);
   const linkUrlInvalid =
     form.banner_link_url.trim().length > 0 && !isValidUrl(form.banner_link_url);
 
-  const handleSave = useCallback(async () => {
-    if (imageUrlInvalid) {
-      toast.error("La URL de la imagen no es válida");
+  const handleImageUpload = useCallback(async (file: File) => {
+    if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/) && file.type !== "") {
+      toast.error("Solo se aceptan imágenes JPG, PNG o GIF");
       return;
     }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("La imagen no puede superar 8MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const fileName = `banners/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage
+        .from("news-images")
+        .upload(fileName, file, { contentType: file.type || "image/jpeg", upsert: false });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(fileName);
+      setForm((f) => ({ ...f, banner_image_url: urlData.publicUrl }));
+      toast.success("Imagen subida");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al subir la imagen";
+      toast.error(msg);
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  const handleSave = useCallback(async () => {
     if (linkUrlInvalid) {
       toast.error("La URL del enlace no es válida");
       return;
@@ -94,7 +114,7 @@ const Banner = () => {
       .update({
         banner_image_url: form.banner_image_url.trim() || null,
         banner_link_url: form.banner_link_url.trim() || null,
-        banner_alt_text: form.banner_alt_text.trim() || null,
+        banner_alt_text: null,
         is_banner_active: form.is_banner_active,
       })
       .eq("id", true);
@@ -109,7 +129,7 @@ const Banner = () => {
     setInitial(form);
     toast.success("Banner guardado");
     queryClient.invalidateQueries({ queryKey: ["topBanner"] });
-  }, [form, imageUrlInvalid, linkUrlInvalid, queryClient]);
+  }, [form, linkUrlInvalid, queryClient]);
 
   return (
     <AdminLayout>
@@ -122,6 +142,19 @@ const Banner = () => {
             Banner publicitario arriba del navbar (sitewide)
           </p>
         </div>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleImageUpload(file);
+            e.target.value = "";
+          }}
+        />
 
         {loading ? (
           <div className="rounded-xl border border-black/[0.06] bg-white p-8 flex items-center gap-3 text-neutral-500">
@@ -158,44 +191,85 @@ const Banner = () => {
               </span>
             </label>
 
-            {/* Image URL */}
+            {/* Imagen — uploader */}
             <div className="mb-5">
               <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
-                URL de la imagen
+                Imagen del banner
               </label>
-              <input
-                type="url"
-                value={form.banner_image_url}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, banner_image_url: e.target.value }))
-                }
-                placeholder="https://… (recomendado 950×75 px)"
-                className={`h-10 w-full rounded-lg border bg-neutral-50/50 px-3 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/5 transition-all ${
-                  imageUrlInvalid
-                    ? "border-red-300"
-                    : "border-neutral-200 focus:border-neutral-300"
-                }`}
-              />
-              {imageUrlInvalid && (
-                <p className="text-xs text-red-500 mt-1.5">
-                  URL no válida. Debe empezar con http:// o https://
-                </p>
-              )}
-              {form.banner_image_url && !imageUrlInvalid && (
-                <a
-                  href={form.banner_image_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 mt-1.5 transition-colors"
+
+              {form.banner_image_url ? (
+                <div className="space-y-2">
+                  <div
+                    className="w-full overflow-hidden rounded-lg border border-neutral-200 bg-zinc-100"
+                    style={{ aspectRatio: "950 / 75" }}
+                  >
+                    <img
+                      src={form.banner_image_url}
+                      alt="Vista previa del banner"
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <UploadCloud className="h-3.5 w-3.5" />
+                      )}
+                      Cambiar imagen
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, banner_image_url: "" }))}
+                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-sm text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Quitar
+                    </button>
+                    <a
+                      href={form.banner_image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-700 transition-colors ml-auto"
+                    >
+                      Abrir <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full rounded-lg border-2 border-dashed border-neutral-200 bg-neutral-50/50 px-4 py-8 flex flex-col items-center justify-center gap-2 text-neutral-500 hover:border-neutral-300 hover:bg-neutral-50 transition-colors disabled:opacity-60"
                 >
-                  Abrir imagen
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <span className="text-sm">Subiendo…</span>
+                    </>
+                  ) : (
+                    <>
+                      <UploadCloud className="h-6 w-6" />
+                      <span className="text-sm font-medium text-neutral-700">
+                        Subir imagen del banner
+                      </span>
+                      <span className="text-xs text-neutral-400">
+                        JPG, PNG o GIF (animado) · recomendado 950 × 75 px · máx 8MB
+                      </span>
+                    </>
+                  )}
+                </button>
               )}
             </div>
 
             {/* Link URL */}
-            <div className="mb-5">
+            <div className="mb-7">
               <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
                 URL destino (opcional)
               </label>
@@ -222,45 +296,6 @@ const Banner = () => {
               </p>
             </div>
 
-            {/* Alt text */}
-            <div className="mb-7">
-              <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
-                Texto alternativo (alt)
-              </label>
-              <input
-                type="text"
-                value={form.banner_alt_text}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, banner_alt_text: e.target.value }))
-                }
-                placeholder="Marca X — Campaña Y"
-                maxLength={200}
-                className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 text-sm text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-900/5 transition-all"
-              />
-              <p className="text-xs text-neutral-400 mt-1.5">
-                Descripción de la creatividad para accesibilidad y SEO.
-              </p>
-            </div>
-
-            {/* Preview */}
-            {form.banner_image_url && !imageUrlInvalid && (
-              <div className="mb-7">
-                <label className="block text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-neutral-400 mb-2">
-                  Vista previa
-                </label>
-                <div
-                  className="w-full overflow-hidden rounded-lg border border-neutral-200 bg-zinc-100"
-                  style={{ aspectRatio: "950 / 75" }}
-                >
-                  <img
-                    src={form.banner_image_url}
-                    alt={form.banner_alt_text || "Vista previa"}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
-            )}
-
             {/* Save */}
             <div className="flex items-center justify-end gap-3">
               {isDirty && (
@@ -269,7 +304,7 @@ const Banner = () => {
               <button
                 type="button"
                 onClick={handleSave}
-                disabled={!isDirty || saving || imageUrlInvalid || linkUrlInvalid}
+                disabled={!isDirty || saving || uploading || linkUrlInvalid}
                 className="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {saving ? (
