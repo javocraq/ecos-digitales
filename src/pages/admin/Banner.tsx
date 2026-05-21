@@ -71,27 +71,33 @@ const Banner = () => {
     form.banner_link_url.trim().length > 0 && !isValidUrl(form.banner_link_url);
 
   const handleImageUpload = useCallback(async (file: File) => {
-    if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/) && file.type !== "") {
-      toast.error("Solo se aceptan imágenes JPG, PNG o GIF");
+    const isHtml = /\.html?$/i.test(file.name) || file.type === "text/html";
+    if (
+      !isHtml &&
+      !file.type.match(/^image\/(jpeg|jpg|png|gif)$/) &&
+      file.type !== ""
+    ) {
+      toast.error("Solo se aceptan imágenes JPG, PNG, GIF o banners HTML");
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
-      toast.error("La imagen no puede superar 8MB");
+      toast.error("El archivo no puede superar 8MB");
       return;
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const ext = file.name.split(".").pop()?.toLowerCase() || (isHtml ? "html" : "jpg");
       const fileName = `banners/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const contentType = isHtml ? "text/html" : file.type || "image/jpeg";
       const { error } = await supabase.storage
         .from("news-images")
-        .upload(fileName, file, { contentType: file.type || "image/jpeg", upsert: false });
+        .upload(fileName, file, { contentType, upsert: false });
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(fileName);
       setForm((f) => ({ ...f, banner_image_url: urlData.publicUrl }));
-      toast.success("Imagen subida");
+      toast.success(isHtml ? "Banner HTML subido" : "Imagen subida");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Error al subir la imagen";
+      const msg = err instanceof Error ? err.message : "Error al subir el archivo";
       toast.error(msg);
     } finally {
       setUploading(false);
@@ -147,7 +153,7 @@ const Banner = () => {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif"
+          accept="image/jpeg,image/png,image/gif,text/html,.jpg,.jpeg,.png,.gif,.html"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -203,11 +209,21 @@ const Banner = () => {
                     className="w-full overflow-hidden rounded-lg border border-neutral-200 bg-zinc-100"
                     style={{ aspectRatio: "950 / 75" }}
                   >
-                    <img
-                      src={form.banner_image_url}
-                      alt="Vista previa del banner"
-                      className="h-full w-full object-contain"
-                    />
+                    {/\.html?(\?|$)/i.test(form.banner_image_url) ? (
+                      <iframe
+                        src={form.banner_image_url}
+                        title="Vista previa del banner"
+                        sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                        scrolling="no"
+                        className="h-full w-full border-0"
+                      />
+                    ) : (
+                      <img
+                        src={form.banner_image_url}
+                        alt="Vista previa del banner"
+                        className="h-full w-full object-contain"
+                      />
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -257,10 +273,10 @@ const Banner = () => {
                     <>
                       <UploadCloud className="h-6 w-6" />
                       <span className="text-sm font-medium text-neutral-700">
-                        Subir imagen del banner
+                        Subir banner
                       </span>
                       <span className="text-xs text-neutral-400">
-                        JPG, PNG o GIF (animado) · recomendado 950 × 75 px · máx 8MB
+                        JPG, PNG, GIF (animado) o HTML · recomendado 950 × 75 px · máx 8MB
                       </span>
                     </>
                   )}
