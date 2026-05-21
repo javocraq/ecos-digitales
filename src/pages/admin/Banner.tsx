@@ -213,7 +213,7 @@ const Banner = () => {
                       <iframe
                         src={form.banner_image_url}
                         title="Vista previa del banner"
-                        sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                         scrolling="no"
                         className="h-full w-full border-0"
                       />

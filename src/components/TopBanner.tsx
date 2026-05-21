@@ -37,7 +37,7 @@ const HtmlBanner = ({ src }: { src: string }) => {
         title="Banner publicitario"
         loading="eager"
         scrolling="no"
-        sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         style={{
           width: BANNER_W,
           height: BANNER_H,
